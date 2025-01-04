@@ -1,0 +1,71 @@
+services:
+  python-base:
+    platform: linux/amd64
+    build:
+      target: python-base
+      args: &default-args
+        - TZ=${TZ}
+        - DOCKER_HOST_UID=${DOCKER_HOST_UID}
+        - DOCKER_HOST_GID=${DOCKER_HOST_GID}
+        - DOCKER_USER=${DOCKER_USER}
+        - DOCKER_USER_HOME=${DOCKER_USER_HOME}
+        - BUILD_PACKAGES=${BUILD_PACKAGES}
+        - VIM_PACKAGES=${VIM_PACKAGES}
+        - PYTHON_VERSION=${PYTHON_VERSION}
+        - POETRY_VERSION=${POETRY_VERSION}
+        - POETRY_OPTIONS=${POETRY_OPTIONS}
+    environment: &default-env
+      - POETRY_NO_INTERACTION=1
+      - PIP_DEFAULT_TIMEOUT=100
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - type: bind
+        source: .
+        target: /application
+  poetry:
+    platform: linux/amd64
+    entrypoint: poetry
+    build:
+      target: poetry
+      args: *default-args
+    environment: *default-env
+    volumes:
+      - type: bind
+        source: .
+        target: /application
+  vim-ide:
+    platform: linux/amd64
+    entrypoint: vim
+    build:
+      target: vim-ide
+      args: *default-args
+    environment: *default-env
+    volumes:
+      - type: bind
+        source: .
+        target: /application
+  app:
+    platform: linux/amd64
+    entrypoint: template_bin
+    build:
+      target: app-build
+      args: *default-args
+    environment: *default-env
+  jupyterlab:
+    platform: linux/amd64
+    entrypoint:
+      - jupyter-lab
+      - --port=8888
+      - --ip="0.0.0.0"
+      - --no-browser
+      - --IdentityProvider.token=${JUPYTER_TOKEN}
+    ports:
+      - "8888:8888"
+    build:
+      target: app-build
+      args: *default-args
+    environment: *default-env
+    volumes:
+      - type: bind
+        source: .
+        target: /application

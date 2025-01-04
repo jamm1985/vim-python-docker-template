@@ -1,0 +1,9 @@
+# project env's
+.coc-settings.json
+.env
+.vimrc
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class

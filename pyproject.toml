@@ -1,0 +1,72 @@
+[tool.poetry]
+name = "vim-python-docker-template"
+version = "0.1.0"
+description = "Templete"
+authors = [
+    "John Dev <j_dev@domain.com>",
+]
+readme = "README.md"
+repository = "https://github.com/jamm1985/vim-python-docker-template"
+
+packages = [
+    { include = "sample", from="src" },
+]
+
+[tool.poetry.scripts]
+template_bin = 'sample.main:run'
+
+[tool.poetry.dependencies]
+python = "~3.13"
+isort = "^5.12.0"
+pytest = "^7.4.3"
+black = "^23.11.0"
+pre-commit = "^3.5.0"
+coverage = "^7.4.0"
+pyright = "^1.1.336"
+ruff = "0.*"
+numpy = "~2.2.1"
+pandas = "~2.2.3"
+scipy = "~1.14.1"
+scikit-learn = "~1.6.0"
+ipython = "^8.31.0"
+jupyterlab = "^4.3.4"
+seaborn = "^0.13.2"
+matplotlib = "^3.10.0"
+sqlalchemy = "^2.0.36"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+include = [
+    "**/pyproject.toml",
+    "src/**/*.py",
+    "src/**/*.pyi",
+]
+line-length = 79
+indent-width = 4
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "S301",
+    "RUF002",
+    "INP001",
+    "COM812",
+    "ISC001",
+]
+
+[tool.ruff.lint.per-file-ignores]
+
+[tool.ruff.lint.isort]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pylint]
+max-args = 10
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"

@@ -1,0 +1,10 @@
+{
+   "pyright.organizeimports.provider": "ruff",
+   "python.formatting.provider": "ruff",
+   "python.linting.ruffEnabled": true,
+
+   "yaml.schemaStore.enable": true,
+   "yaml.completion": true,
+   "yaml.hover": true,
+   "yaml.format.enable": true
+}
