@@ -83,5 +83,8 @@ ARG DOCKER_USER=devuser
 COPY src/ build/src
 COPY README.md /build/
 RUN poetry install -C /build
+RUN sed -i "/\b\($DOCKER_USER\)\b/d" /etc/sudoers
+RUN pacman -Scc <<< Y <<< Y
+RUN rm -rf $POETRY_CACHE_DIR && rm -rf $PIP_CACHE_DIR
 USER $DOCKER_USER
 WORKDIR /application
