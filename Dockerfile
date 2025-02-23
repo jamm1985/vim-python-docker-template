@@ -4,6 +4,7 @@ ARG DOCKER_HOST_UID=10000
 ARG DOCKER_HOST_GID=10000
 ARG DOCKER_USER=devuser
 ARG DOCKER_USER_HOME=/home/devuser
+ARG MIRROR_LIST_COUNTRY=RU
 ARG BUILD_PACKAGES="pyenv git gnupg sudo postgresql-libs mariadb-libs openmp"
 ARG PYTHON_VERSION=3.13
 ARG POETRY_VERSION=1.8.5
@@ -18,7 +19,11 @@ RUN set -eux; \
 	useradd --no-log-init -g $DOCKER_USER --uid=$DOCKER_HOST_UID \
   -d $DOCKER_USER_HOME -ms /bin/bash $DOCKER_USER
 RUN mkdir /application && chown $DOCKER_USER:$DOCKER_USER /application
-RUN pacman -Sy && pacman -S --noconfirm $BUILD_PACKAGES
+RUN curl -s \
+  "https://archlinux.org/mirrorlist/?country=$MIRROR_LIST_COUNTRY&protocol=http&protocol=https&ip_version=4" \
+  | sed -e 's/^#Server/Server/' -e '/^#/d' > /etc/pacman.d/mirrorlist
+RUN pacman -Syu --noconfirm
+RUN pacman -S --noconfirm $BUILD_PACKAGES
 RUN echo "${DOCKER_USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 ENV PYENV_ROOT=$DOCKER_USER_HOME/.pyenv
 ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
