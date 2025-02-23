@@ -1,5 +1,7 @@
 # vim-python-docker-template
 
+![image](https://github.com/user-attachments/assets/2846d6df-16de-4c24-b308-abb8534bd844)
+
 This is a template for python-based projects. Many DS/ML workflows require
 hardware-specific platforms in detailed OS-level libraries and python
 dependencies. In some cases, it is useful to perform code editing in the same
