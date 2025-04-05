@@ -124,8 +124,15 @@ nmap <F6> <Plug>AirlineSelectNextTab
 let g:airline#extensions#whitespace#enabled = 0
 
 " -- markdown --
+au FileType markdown setlocal
+      \ expandtab
+      \ tabstop=2
+      \ softtabstop=2
+      \ shiftwidth=2
 let g:vim_markdown_folding_disabled = 1
 let g:vim_markdown_toc_autofit = 1
+let g:vim_markdown_new_list_item_indent = 2
+
 
 " -- status line --
 set laststatus=2
