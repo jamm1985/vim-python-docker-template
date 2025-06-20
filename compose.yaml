@@ -34,6 +34,12 @@ services:
       - type: bind
         source: .
         target: /application
+      - type: volume
+        source: pip-cache
+        target: /var/cache/pip
+      - type: volume
+        source: poetry-cache
+        target: /var/cache/pypoetry
   vim-ide:
     platform: linux/amd64
     entrypoint: vim
@@ -70,3 +76,8 @@ services:
       - type: bind
         source: .
         target: /application
+volumes:
+  pip-cache:
+    driver: local
+  poetry-cache:
+    driver: local

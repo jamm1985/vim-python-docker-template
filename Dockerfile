@@ -47,13 +47,28 @@ ENV PROJECT_ROOT=/application
 
 FROM python-base AS poetry
 ARG DOCKER_USER=devuser
+RUN mkdir -p $POETRY_CACHE_DIR && \
+  chown -R $DOCKER_USER $POETRY_CACHE_DIR
+RUN mkdir -p $PIP_CACHE_DIR && \
+  chown -R $DOCKER_USER $PIP_CACHE_DIR
 USER $DOCKER_USER
 WORKDIR /application
 
 FROM python-base AS build-deps
 ARG POETRY_OPTIONS="--no-root --compile"
 COPY pyproject.toml poetry.lock /build/
-RUN poetry install $POETRY_OPTIONS -n -v -C /build
+RUN poetry install $POETRY_OPTIONS -n -v -C /build && \
+  rm -rf $POETRY_CACHE_DIR/* && rm -rf $PIP_CACHE_DIR/*
+
+FROM build-deps AS app-build
+ARG DOCKER_USER=devuser
+COPY src/ build/src
+COPY README.md /build/
+RUN poetry install -C /build
+RUN sed -i "/\b\($DOCKER_USER\)\b/d" /etc/sudoers
+RUN pacman -Scc <<< Y <<< Y
+USER $DOCKER_USER
+WORKDIR /application
 
 FROM build-deps AS vim-ide
 ARG DOCKER_USER=devuser
@@ -81,15 +96,4 @@ COPY --chown=$DOCKER_USER:$DOCKER_USER .coc-settings.json \
   $DOCKER_USER_HOME/.vim/coc-settings.json
 RUN git config --global --add safe.directory /application
 ENV TERM=xterm-256color
-WORKDIR /application
-
-FROM build-deps AS app-build
-ARG DOCKER_USER=devuser
-COPY src/ build/src
-COPY README.md /build/
-RUN poetry install -C /build
-RUN sed -i "/\b\($DOCKER_USER\)\b/d" /etc/sudoers
-RUN pacman -Scc <<< Y <<< Y
-RUN rm -rf $POETRY_CACHE_DIR && rm -rf $PIP_CACHE_DIR
-USER $DOCKER_USER
 WORKDIR /application
