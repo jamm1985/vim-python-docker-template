@@ -58,7 +58,7 @@ RUN poetry install $POETRY_OPTIONS -n -v -C /build
 FROM build-deps AS vim-ide
 ARG DOCKER_USER=devuser
 ARG DOCKER_USER_HOME=/home/devuser
-ARG VIM_PACKAGES="python vim ctags ripgrep bat npm nodejs-lts-iron"
+ARG VIM_PACKAGES="python vim ctags ripgrep bat npm nodejs-lts-jod"
 RUN pacman -Sy && pacman -S --noconfirm $VIM_PACKAGES
 USER $DOCKER_USER
 RUN curl -fLo $DOCKER_USER_HOME/.vim/autoload/plug.vim --create-dirs \
