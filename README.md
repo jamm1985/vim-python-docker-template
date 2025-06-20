@@ -147,7 +147,7 @@ productivity and designed to work out of the box — but is fully customizable.
 - [NERDTree](https://github.com/preservim/nerdtree) – File tree explorer
 - [fzf.vim](https://github.com/junegunn/fzf.vim) – Fuzzy file and symbol search
 - [tagbar](https://github.com/preservim/tagbar) – Code structure sidebar
-- [vim-airline](https://github.com/vim-airline/vim-airline)** – Status/tab line enhancement
+- [vim-airline](https://github.com/vim-airline/vim-airline) – Status/tab line enhancement
 
 🔄 Git Integration
 
