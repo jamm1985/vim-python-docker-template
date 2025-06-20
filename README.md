@@ -55,8 +55,6 @@ The configuration is intentionally minimal and easy to adapt. You’re free to:
 
 Use it as-is or tailor it to match your team's development workflow.
 
----
-
 ## ✅ Features
 
 - 📦 **Reproducible environments** for Python development
@@ -65,15 +63,11 @@ Use it as-is or tailor it to match your team's development workflow.
 - 🧩 Simple to extend with Jupyter, SQL drivers, and more
 - 🔁 Works identically on any machine with Docker
 
----
-
 ## 🧪 Tested with
 
 - **Docker**: `27.3.1` – `28.2.2`
 - **buildx**: `0.20.0` – `0.25.0`
 - **Compose**: `2.32.1` – `2.37.1`
-
----
 
 ## 🚀 Getting Started
 
@@ -155,44 +149,40 @@ productivity and designed to work out of the box — but is fully customizable.
 - ✅ Enhanced status line, file tree, and fuzzy finding
 - ✅ Python-focused indentation, folding, and style enforcement
 
----
-
 ### 🔌Included Plugins
 
 #### 🧠 Code Intelligence
 
-- **[coc.nvim](https://github.com/neoclide/coc.nvim)** – LSP engine with autocompletion, diagnostics, and more
-- **[coc-pyright](https://github.com/fannheyward/coc-pyright)** – Python LSP support
-- **[ultisnips](https://github.com/SirVer/ultisnips)** + **[vim-snippets](https://github.com/honza/vim-snippets)** – Powerful snippet expansion
+- [coc.nvim](https://github.com/neoclide/coc.nvim) – LSP engine with autocompletion, diagnostics, and more
+- [coc-pyright](https://github.com/fannheyward/coc-pyright) – Python LSP support
+- [ultisnips](https://github.com/SirVer/ultisnips) + [vim-snippets](https://github.com/honza/vim-snippets) – Powerful snippet expansion
 
 #### 📁 Navigation & UI
 
-- **[NERDTree](https://github.com/preservim/nerdtree)** – File tree explorer
-- **[fzf.vim](https://github.com/junegunn/fzf.vim)** – Fuzzy file and symbol search
-- **[tagbar](https://github.com/preservim/tagbar)** – Code structure sidebar
-- **[vim-airline](https://github.com/vim-airline/vim-airline)** – Status/tab line enhancement
+- [NERDTree](https://github.com/preservim/nerdtree) – File tree explorer
+- [fzf.vim](https://github.com/junegunn/fzf.vim) – Fuzzy file and symbol search
+- [tagbar](https://github.com/preservim/tagbar) – Code structure sidebar
+- [vim-airline](https://github.com/vim-airline/vim-airline)** – Status/tab line enhancement
 
 #### 🔄 Git Integration
 
-- **[vim-fugitive](https://github.com/tpope/vim-fugitive)** – Git commands from within Vim
-- **[vim-gitgutter](https://github.com/airblade/vim-gitgutter)** – Git diff signs in the gutter
+- [vim-fugitive](https://github.com/tpope/vim-fugitive) – Git commands from within Vim
+- [vim-gitgutter](https://github.com/airblade/vim-gitgutter) – Git diff signs in the gutter
 
 #### 📝 Markdown Support
 
-- **[vim-markdown](https://github.com/plasticboy/vim-markdown)** – Markdown editing enhancements
-- **[vim-markdown-toc](https://github.com/mzlogin/vim-markdown-toc)** – Auto-generated table of contents
+- [vim-markdown](https://github.com/plasticboy/vim-markdown) – Markdown editing enhancements
+- [vim-markdown-toc](https://github.com/mzlogin/vim-markdown-toc) – Auto-generated table of contents
 
 #### 📊 Data Science & Python Dev
 
-- **[vim-slime](https://github.com/jpalardy/vim-slime)** – Send code to REPL or terminal
-- **[vim-doge](https://github.com/kkoomen/vim-doge)** – Generate docstrings in Google/Numpy style
+- [vim-slime](https://github.com/jpalardy/vim-slime) – Send code to REPL or terminal
+- [vim-doge](https://github.com/kkoomen/vim-doge) – Generate docstrings in Google/Numpy style
 
 #### 🎨 Theme & Aesthetics
 
-- **[gruvbox-material](https://github.com/sainnhe/gruvbox-material)** – Color scheme (dark, high-contrast)
-- Airline integrated with Gruvbox  
-
----
+- [gruvbox-material](https://github.com/sainnhe/gruvbox-material) – Color scheme (dark, high-contrast)
+- Airline integrated with Gruvbox
 
 ### ⚙️ Python-Specific Tuning
 
@@ -200,8 +190,6 @@ productivity and designed to work out of the box — but is fully customizable.
 - `textwidth` and `colorcolumn` set to PEP8 defaults
 - Spellcheck enabled for English and Russian
 - LSP-based completion, hover docs, jump-to-definition, code actions
-
----
 
 ### 🗂 Additional Notes
 
