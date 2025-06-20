@@ -7,7 +7,7 @@ ARG DOCKER_USER_HOME=/home/devuser
 ARG MIRROR_LIST_COUNTRY=RU
 ARG BUILD_PACKAGES="pyenv git gnupg sudo postgresql-libs mariadb-libs openmp"
 ARG PYTHON_VERSION=3.13
-ARG POETRY_VERSION=1.8.5
+ARG POETRY_VERSION=2.1.3
 RUN echo "* soft core 0" >> /etc/security/limits.conf && \
     echo "* hard core 0" >> /etc/security/limits.conf && \
     echo "* soft nofile 10000" >> /etc/security/limits.conf
