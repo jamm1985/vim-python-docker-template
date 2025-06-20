@@ -8,23 +8,8 @@
 * [✅ Features](#-features)
 * [🧪 Tested with](#-tested-with)
 * [🚀 Getting Started](#-getting-started)
-  * [1. Configure environment and Python settings](#1-configure-environment-and-python-settings)
-  * [2. Set up Python project dependencies](#2-set-up-python-project-dependencies)
-  * [3. Build your Vim IDE image](#3-build-your-vim-ide-image)
-  * [4. Start developing inside the container](#4-start-developing-inside-the-container)
-  * [5. Update dependencies when needed](#5-update-dependencies-when-needed)
-  * [6. Build and run your application](#6-build-and-run-your-application)
-  * [📓 Optional: Run JupyterLab](#-optional-run-jupyterlab)
 * [🧠 Vim IDE Features](#-vim-ide-features)
-  * [✨ Core Capabilities](#-core-capabilities)
   * [🔌Included Plugins](#included-plugins)
-    * [🧠 Code Intelligence](#-code-intelligence)
-    * [📁 Navigation & UI](#-navigation--ui)
-    * [🔄 Git Integration](#-git-integration)
-    * [📝 Markdown Support](#-markdown-support)
-    * [📊 Data Science & Python Dev](#-data-science--python-dev)
-    * [🎨 Theme & Aesthetics](#-theme--aesthetics)
-  * [⚙️ Python-Specific Tuning](#-python-specific-tuning)
   * [🗂 Additional Notes](#-additional-notes)
 
 <!-- vim-markdown-toc -->
@@ -71,14 +56,14 @@ Use it as-is or tailor it to match your team's development workflow.
 
 ## 🚀 Getting Started
 
-### 1. Configure environment and Python settings
+1. Configure environment and Python settings
 
 ```bash
 cp .env.dist .env
 vim .env  # Set OS packages, Python version, Poetry version, etc.
 ```
 
-### 2. Set up Python project dependencies
+2. Set up Python project dependencies
 
 ```bash
 vim pyproject.toml  # Edit dependencies, metadata, etc.
@@ -87,7 +72,7 @@ docker compose run --rm poetry lock  # Generate poetry.lock
 git add poetry.lock
 ```
 
-### 3. Build your Vim IDE image
+3. Build your Vim IDE image
 
 ```bash
 cp .vimrc.dist .vimrc
@@ -97,13 +82,13 @@ git config --local user.email you@example.com
 docker compose build vim-ide
 ```
 
-### 4. Start developing inside the container
+4. Start developing inside the container
 
 ```bash
 docker compose run --rm vim-ide
 ```
 
-### 5. Update dependencies when needed
+5. Update dependencies when needed
 
 ```bash
 docker compose run --rm poetry lock
@@ -117,14 +102,14 @@ docker compose build vim-ide
 docker compose run --rm vim-ide
 ```
 
-### 6. Build and run your application
+6. Build and run your application
 
 ```bash
 docker compose build app
 docker compose run --rm app
 ```
 
-### 📓 Optional: Run JupyterLab
+📓 Optional: Run JupyterLab
 
 ```bash
 docker compose build jupyterlab
@@ -138,7 +123,7 @@ This template comes with a thoughtfully configured Vim environment that
 replicates many features you'd expect from a modern IDE. It’s built for
 productivity and designed to work out of the box — but is fully customizable.
 
-### ✨ Core Capabilities
+✨ Core Capabilities
 
 - ✅ Syntax highlighting & intelligent folding
 - ✅ Autocompletion and LSP features via `coc.nvim`
@@ -151,40 +136,40 @@ productivity and designed to work out of the box — but is fully customizable.
 
 ### 🔌Included Plugins
 
-#### 🧠 Code Intelligence
+🧠 Code Intelligence
 
 - [coc.nvim](https://github.com/neoclide/coc.nvim) – LSP engine with autocompletion, diagnostics, and more
 - [coc-pyright](https://github.com/fannheyward/coc-pyright) – Python LSP support
 - [ultisnips](https://github.com/SirVer/ultisnips) + [vim-snippets](https://github.com/honza/vim-snippets) – Powerful snippet expansion
 
-#### 📁 Navigation & UI
+📁 Navigation & UI
 
 - [NERDTree](https://github.com/preservim/nerdtree) – File tree explorer
 - [fzf.vim](https://github.com/junegunn/fzf.vim) – Fuzzy file and symbol search
 - [tagbar](https://github.com/preservim/tagbar) – Code structure sidebar
 - [vim-airline](https://github.com/vim-airline/vim-airline)** – Status/tab line enhancement
 
-#### 🔄 Git Integration
+🔄 Git Integration
 
 - [vim-fugitive](https://github.com/tpope/vim-fugitive) – Git commands from within Vim
 - [vim-gitgutter](https://github.com/airblade/vim-gitgutter) – Git diff signs in the gutter
 
-#### 📝 Markdown Support
+📝 Markdown Support
 
 - [vim-markdown](https://github.com/plasticboy/vim-markdown) – Markdown editing enhancements
 - [vim-markdown-toc](https://github.com/mzlogin/vim-markdown-toc) – Auto-generated table of contents
 
-#### 📊 Data Science & Python Dev
+📊 Data Science & Python Dev
 
 - [vim-slime](https://github.com/jpalardy/vim-slime) – Send code to REPL or terminal
 - [vim-doge](https://github.com/kkoomen/vim-doge) – Generate docstrings in Google/Numpy style
 
-#### 🎨 Theme & Aesthetics
+🎨 Theme & Aesthetics
 
 - [gruvbox-material](https://github.com/sainnhe/gruvbox-material) – Color scheme (dark, high-contrast)
 - Airline integrated with Gruvbox
 
-### ⚙️ Python-Specific Tuning
+⚙️ Python-Specific Tuning
 
 - Smart indentation for Python, with 4-space formatting
 - `textwidth` and `colorcolumn` set to PEP8 defaults
