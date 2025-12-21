@@ -8,9 +8,13 @@
 * [✅ Features](#-features)
 * [🧪 Tested with](#-tested-with)
 * [🚀 Getting Started](#-getting-started)
+* [💻 AI-Powered CLI Workflow (Gemini & Codex)](#-ai-powered-cli-workflow-gemini--codex)
+  * [Interactive CLI Usage in Vim Terminal](#interactive-cli-usage-in-vim-terminal)
+  * [Gemini CLI examples](#gemini-cli-examples)
+  * [Codex CLI examples](#codex-cli-examples)
 * [🧠 Vim IDE Features](#-vim-ide-features)
-    * [🔌Included Plugins](#included-plugins)
-    * [🗂 Additional Notes](#-additional-notes)
+  * [🔌Included Plugins](#included-plugins)
+  * [🗂 Additional Notes](#-additional-notes)
 
 <!-- vim-markdown-toc -->
 
@@ -56,11 +60,11 @@ Use it as-is or tailor it to match your team's development workflow.
 
 ## 🚀 Getting Started
 
-1. Configure environment and Python settings
+1. Configure environment and Python settings and API tokens
 
 ```bash
 cp .env.dist .env
-vim .env  # Set OS packages, Python version, Poetry version, etc.
+vim .env  # Set OS packages, Python version, Poetry version, etc., and your API keys for OPENAI_API_KEY and GEMINI_API_KEY.
 ```
 
 2. Set up Python project dependencies
@@ -115,6 +119,87 @@ docker compose run --rm app
 docker compose build jupyterlab
 docker compose run --rm --service-ports jupyterlab
 # Open: http://127.0.0.1:8888/lab?token=<your .env token>
+```
+
+## 💻 AI-Powered CLI Workflow (Gemini & Codex)
+
+This project template is designed to be easily integrated with powerful CLI
+tools like Gemini and Codex, enhancing your development workflow with
+intelligent assistance.  Rather than replacing your editor, these tools
+complement Vim by running alongside it in a terminal—either inside or outside
+Vim—so you can inspect, generate, and reason about code without breaking flow.
+
+NOTE: To use AI CLI tools such as Gemini or Codex, you must configure API keys
+according to each provider’s official documentation.
+
+### Interactive CLI Usage in Vim Terminal
+
+For a more integrated workflow, you can use the Gemini and Codex CLIs directly
+within a Vim terminal. This allows for quick iteration, context-aware
+assistance, and seamless integration with your editing environment.
+
+To open a terminal within Vim, you can use `:terminal` or `:vertical term` or
+`:tab terminal`. Once inside the terminal, you can invoke the CLI tools as
+usual.
+
+### Gemini CLI examples
+
+The Gemini CLI provides a conversational interface to interact with your
+codebase, allowing you to ask questions, refactor code, fix bugs, and add new
+features.
+
+Run interactively:
+
+```bash
+gemini
+```
+
+Read a file:
+
+```bash
+gemini read src/sample/main.py
+```
+
+List directory contents:
+
+```bash
+gemini list src/sample
+```
+
+Explain a code snippet (hypothetical):
+
+```bash
+gemini explain "def my_function():" --file src/sample/main.py
+```
+
+### Codex CLI examples
+
+The Codex CLI (or similar code generation/analysis tools) can be used for
+automating code generation, understanding project structure, and suggesting
+improvements.
+
+Run interactively:
+
+```bash
+codex
+```
+
+Generate a new Python class (hypothetical):
+
+```bash
+codex generate class User --fields name:str,email:str --language python --file src/models.py
+```
+
+Analyze dependencies (hypothetical):
+
+```bash
+codex analyze dependencies --project-root .
+```
+
+Suggest tests for a file (hypothetical):
+
+```bash
+codex suggest tests --file src/sample/main.py
 ```
 
 ## 🧠 Vim IDE Features

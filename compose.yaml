@@ -1,3 +1,8 @@
+x-default-env: &default-env
+  POETRY_NO_INTERACTION: "1"
+  PIP_DEFAULT_TIMEOUT: "100"
+  PYTHONUNBUFFERED: "1"
+
 services:
   python-base:
     platform: linux/amd64
@@ -16,17 +21,16 @@ services:
         - POETRY_VERSION=${POETRY_VERSION}
         - POETRY_OPTIONS_APP=${POETRY_OPTIONS_APP}
         - POETRY_OPTIONS_DEV=${POETRY_OPTIONS_DEV}
-    environment: &default-env
-      - POETRY_NO_INTERACTION=1
-      - PIP_DEFAULT_TIMEOUT=100
-      - PYTHONUNBUFFERED=1
+    environment:
+      <<: *default-env
   poetry:
     platform: linux/amd64
     entrypoint: poetry
     build:
       target: poetry
       args: *default-args
-    environment: *default-env
+    environment:
+      <<: *default-env
     volumes:
       - type: bind
         source: .
@@ -43,7 +47,10 @@ services:
     build:
       target: vim-ide
       args: *default-args
-    environment: *default-env
+    environment:
+      <<: *default-env
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     volumes:
       - type: bind
         source: .
@@ -61,7 +68,8 @@ services:
     build:
       target: dev-build
       args: *default-args
-    environment: *default-env
+    environment:
+      <<: *default-env
     volumes:
       - type: bind
         source: .
@@ -72,7 +80,8 @@ services:
     build:
       target: app-build
       args: *default-args
-    environment: *default-env
+    environment:
+      <<: *default-env
 volumes:
   pip-cache:
     driver: local
