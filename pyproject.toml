@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vim-python-docker-template"
-version = "0.1.0"
+version = "0.2.0"
 description = "Templete"
 authors = [
     "John Dev <j_dev@domain.com>",
@@ -16,23 +16,24 @@ packages = [
 template_bin = 'sample.main:run'
 
 [tool.poetry.dependencies]
-python = "~3.13"
-isort = "^5.12.0"
-pytest = "^7.4.3"
-black = "^23.11.0"
-pre-commit = "^3.5.0"
-coverage = "^7.4.0"
-pyright = "^1.1.336"
+python = "~3.14"
+numpy = "~2.4.0"
+pandas = "~2.3.3"
+scikit-learn = "~1.8.0"
+scipy = "~1.16.3"
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.12.0"
+coverage = "^7.13.0"
+ipython = "^9.8.0"
+isort = "^7.0.0"
+jupyterlab = "^4.5.1"
+matplotlib = "^3.10.8"
+pre-commit = "^4.5.1"
+pyright = "^1.1.407"
+pytest = "^9.0.2"
 ruff = "0.*"
-numpy = "~2.2.1"
-pandas = "~2.2.3"
-scipy = "~1.14.1"
-scikit-learn = "~1.6.0"
-ipython = "^8.31.0"
-jupyterlab = "^4.3.4"
 seaborn = "^0.13.2"
-matplotlib = "^3.10.0"
-sqlalchemy = "^2.0.36"
 
 [build-system]
 requires = ["poetry-core"]

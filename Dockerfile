@@ -6,8 +6,8 @@ ARG DOCKER_USER=devuser
 ARG DOCKER_USER_HOME=/home/devuser
 ARG MIRROR_LIST_COUNTRY=RU
 ARG BUILD_PACKAGES="pyenv git gnupg sudo postgresql-libs mariadb-libs openmp"
-ARG PYTHON_VERSION=3.13
-ARG POETRY_VERSION=2.1.3
+ARG PYTHON_VERSION=3.14
+ARG POETRY_VERSION=2.2.1
 RUN echo "* soft core 0" >> /etc/security/limits.conf && \
     echo "* hard core 0" >> /etc/security/limits.conf && \
     echo "* soft nofile 10000" >> /etc/security/limits.conf
@@ -22,8 +22,7 @@ RUN mkdir /application && chown $DOCKER_USER:$DOCKER_USER /application
 RUN curl -s \
   "https://archlinux.org/mirrorlist/?country=$MIRROR_LIST_COUNTRY&protocol=http&protocol=https&ip_version=4" \
   | sed -e 's/^#Server/Server/' -e '/^#/d' > /etc/pacman.d/mirrorlist
-RUN pacman -Syu --noconfirm
-RUN pacman -S --noconfirm $BUILD_PACKAGES
+RUN pacman -Syu --noconfirm && pacman -S --noconfirm $BUILD_PACKAGES
 RUN echo "${DOCKER_USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 ENV PYENV_ROOT=$DOCKER_USER_HOME/.pyenv
 ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
@@ -54,23 +53,30 @@ RUN mkdir -p $PIP_CACHE_DIR && \
 USER $DOCKER_USER
 WORKDIR /application
 
-FROM python-base AS build-deps
-ARG POETRY_OPTIONS="--no-root --compile"
-COPY pyproject.toml poetry.lock /build/
-RUN poetry install $POETRY_OPTIONS -n -v -C /build && \
-  rm -rf $POETRY_CACHE_DIR/* && rm -rf $PIP_CACHE_DIR/*
-
-FROM build-deps AS app-build
+FROM python-base AS app-build
 ARG DOCKER_USER=devuser
 COPY src/ build/src
 COPY README.md /build/
-RUN poetry install -C /build
+COPY pyproject.toml poetry.lock /build/
+ARG POETRY_OPTIONS_APP="--only main --compile"
+RUN poetry install $POETRY_OPTIONS_APP -n -v -C /build && \
+  rm -rf $POETRY_CACHE_DIR/* && rm -rf $PIP_CACHE_DIR/*
 RUN sed -i "/\b\($DOCKER_USER\)\b/d" /etc/sudoers
 RUN pacman -Scc <<< Y <<< Y
 USER $DOCKER_USER
 WORKDIR /application
 
-FROM build-deps AS vim-ide
+FROM python-base AS build-deps-dev
+ARG POETRY_OPTIONS_DEV="--no-root --with-dev --compile"
+COPY pyproject.toml poetry.lock /build/
+RUN poetry install $POETRY_OPTIONS_DEV -n -v -C /build 
+
+FROM build-deps-dev AS dev-build
+ARG DOCKER_USER=devuser
+USER $DOCKER_USER
+WORKDIR /application
+
+FROM build-deps-dev AS vim-ide
 ARG DOCKER_USER=devuser
 ARG DOCKER_USER_HOME=/home/devuser
 ARG VIM_PACKAGES="python vim ctags ripgrep bat npm nodejs-lts-jod"

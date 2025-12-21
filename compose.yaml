@@ -14,15 +14,12 @@ services:
         - VIM_PACKAGES=${VIM_PACKAGES}
         - PYTHON_VERSION=${PYTHON_VERSION}
         - POETRY_VERSION=${POETRY_VERSION}
-        - POETRY_OPTIONS=${POETRY_OPTIONS}
+        - POETRY_OPTIONS_APP=${POETRY_OPTIONS_APP}
+        - POETRY_OPTIONS_DEV=${POETRY_OPTIONS_DEV}
     environment: &default-env
       - POETRY_NO_INTERACTION=1
       - PIP_DEFAULT_TIMEOUT=100
       - PYTHONUNBUFFERED=1
-    volumes:
-      - type: bind
-        source: .
-        target: /application
   poetry:
     platform: linux/amd64
     entrypoint: poetry
@@ -51,13 +48,6 @@ services:
       - type: bind
         source: .
         target: /application
-  app:
-    platform: linux/amd64
-    entrypoint: template_bin
-    build:
-      target: app-build
-      args: *default-args
-    environment: *default-env
   jupyterlab:
     platform: linux/amd64
     entrypoint:
@@ -69,13 +59,20 @@ services:
     ports:
       - "8888:8888"
     build:
-      target: app-build
+      target: dev-build
       args: *default-args
     environment: *default-env
     volumes:
       - type: bind
         source: .
         target: /application
+  app:
+    platform: linux/amd64
+    entrypoint: template_bin
+    build:
+      target: app-build
+      args: *default-args
+    environment: *default-env
 volumes:
   pip-cache:
     driver: local

@@ -9,8 +9,8 @@
 * [🧪 Tested with](#-tested-with)
 * [🚀 Getting Started](#-getting-started)
 * [🧠 Vim IDE Features](#-vim-ide-features)
-  * [🔌Included Plugins](#included-plugins)
-  * [🗂 Additional Notes](#-additional-notes)
+    * [🔌Included Plugins](#included-plugins)
+    * [🗂 Additional Notes](#-additional-notes)
 
 <!-- vim-markdown-toc -->
 
@@ -50,9 +50,9 @@ Use it as-is or tailor it to match your team's development workflow.
 
 ## 🧪 Tested with
 
-- **Docker**: `27.3.1` – `28.2.2`
-- **buildx**: `0.20.0` – `0.25.0`
-- **Compose**: `2.32.1` – `2.37.1`
+- **Docker**: `27.3.1` – `29.1.1`
+- **buildx**: `0.20.0` – `0.30.0`
+- **Compose**: `2.32.1` – `2.40.3`
 
 ## 🚀 Getting Started
 
@@ -68,8 +68,8 @@ vim .env  # Set OS packages, Python version, Poetry version, etc.
 ```bash
 vim pyproject.toml  # Edit dependencies, metadata, etc.
 docker compose build poetry
-docker compose run --rm poetry lock  # Generate poetry.lock
-git add poetry.lock
+docker compose run --rm poetry lock  # Generate or update poetry.lock
+# git add poetry.lock
 ```
 
 3. Build your Vim IDE image
