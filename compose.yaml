@@ -55,6 +55,32 @@ services:
       - type: bind
         source: .
         target: /application
+  gemini:
+    platform: linux/amd64
+    entrypoint: gemini
+    build:
+      target: vim-ide
+      args: *default-args
+    environment:
+      <<: *default-env
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    volumes:
+      - type: bind
+        source: .
+        target: /application
+  codex:
+    platform: linux/amd64
+    entrypoint: codex
+    build:
+      target: vim-ide
+      args: *default-args
+    environment:
+      <<: *default-env
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    volumes:
+      - type: bind
+        source: .
+        target: /application
   jupyterlab:
     platform: linux/amd64
     entrypoint:

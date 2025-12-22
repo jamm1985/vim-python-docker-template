@@ -113,7 +113,19 @@ docker compose build app
 docker compose run --rm app
 ```
 
-📓 Optional: Run JupyterLab
+- Optional: Run Codex or Gemini (see more examples below)
+
+```bash
+docker compose build codex
+docker compose run --rm codex
+```
+
+```bash
+docker compose build gemini
+docker compose run --rm gemini
+```
+
+- Optional: Run JupyterLab
 
 ```bash
 docker compose build jupyterlab
@@ -142,16 +154,27 @@ To open a terminal within Vim, you can use `:terminal` or `:vertical term` or
 `:tab terminal`. Once inside the terminal, you can invoke the CLI tools as
 usual.
 
+Alternatively, the AI CLI tools can be run outside Vim, in a separate terminal
+tab, window, or tmux pane. This is often preferable for longer interactive
+sessions or when reviewing large outputs. See, `codex` and `gemini` services in
+`compose.yaml`.
+
 ### Gemini CLI examples
 
 The Gemini CLI provides a conversational interface to interact with your
 codebase, allowing you to ask questions, refactor code, fix bugs, and add new
 features.
 
-Run interactively:
+Run interactively in Vim:
 
 ```bash
 gemini
+```
+
+or using docker compose:
+
+```bash
+docker compose run --rm gemini
 ```
 
 Read a file:
@@ -178,10 +201,16 @@ The Codex CLI (or similar code generation/analysis tools) can be used for
 automating code generation, understanding project structure, and suggesting
 improvements.
 
-Run interactively:
+Run interactively in Vim:
 
 ```bash
 codex
+```
+
+or using docker compose:
+
+```bash
+docker compose run --rm codex 
 ```
 
 Generate a new Python class (hypothetical):
