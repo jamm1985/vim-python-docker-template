@@ -3,24 +3,27 @@ x-default-env: &default-env
   PIP_DEFAULT_TIMEOUT: "100"
   PYTHONUNBUFFERED: "1"
 
+x-default-args: &default-args
+  TZ: ${TZ:-Asia/Vladivostok}
+  DOCKER_HOST_UID: ${DOCKER_HOST_UID:-1000}
+  DOCKER_HOST_GID: ${DOCKER_HOST_GID:-1000}
+  DOCKER_USER: ${DOCKER_USER:-developer}
+  DOCKER_USER_HOME: ${DOCKER_USER_HOME:-/home/developer}
+  MIRROR_LIST_COUNTRY: ${MIRROR_LIST_COUNTRY:-RU}
+  BUILD_PACKAGES: ${BUILD_PACKAGES:-pyenv git gnupg sudo postgresql-libs mariadb-libs openmp}
+  VIM_PACKAGES: ${VIM_PACKAGES:-python vim ctags ripgrep bat npm nodejs-lts-jod}
+  PYTHON_VERSION: ${PYTHON_VERSION:-3.14}
+  POETRY_VERSION: ${POETRY_VERSION:-2.2.1}
+  POETRY_OPTIONS_APP: ${POETRY_OPTIONS_APP:---only main --compile}
+  POETRY_OPTIONS_DEV: ${POETRY_OPTIONS_DEV:---no-root --with-dev --compile}
+  NPM_GLOBAL_PACKAGES: ${NPM_GLOBAL_PACKAGES:-}
+
 services:
   python-base:
     platform: linux/amd64
     build:
       target: python-base
-      args: &default-args
-        - TZ=${TZ}
-        - DOCKER_HOST_UID=${DOCKER_HOST_UID}
-        - DOCKER_HOST_GID=${DOCKER_HOST_GID}
-        - DOCKER_USER=${DOCKER_USER}
-        - DOCKER_USER_HOME=${DOCKER_USER_HOME}
-        - MIRROR_LIST_COUNTRY=${MIRROR_LIST_COUNTRY}
-        - BUILD_PACKAGES=${BUILD_PACKAGES}
-        - VIM_PACKAGES=${VIM_PACKAGES}
-        - PYTHON_VERSION=${PYTHON_VERSION}
-        - POETRY_VERSION=${POETRY_VERSION}
-        - POETRY_OPTIONS_APP=${POETRY_OPTIONS_APP}
-        - POETRY_OPTIONS_DEV=${POETRY_OPTIONS_DEV}
+      args: *default-args
     environment:
       <<: *default-env
   poetry:

@@ -64,7 +64,7 @@ Use it as-is or tailor it to match your team's development workflow.
 
 ```bash
 cp .env.dist .env
-vim .env  # Set OS packages, Python version, Poetry version, etc., and your API keys for OPENAI_API_KEY and GEMINI_API_KEY.
+vim .env  # Set OS packages, a released PYTHON_VERSION, Poetry version, etc., and your API keys for OPENAI_API_KEY and GEMINI_API_KEY.
 ```
 
 2. Set up Python project dependencies
@@ -114,6 +114,7 @@ docker compose run --rm app
 ```
 
 - Optional: Run Codex or Gemini (see more examples below)
+  - Note: `codex` and `gemini` CLIs are installed during the image build via `NPM_GLOBAL_PACKAGES` in `.env`.
 
 ```bash
 docker compose build codex

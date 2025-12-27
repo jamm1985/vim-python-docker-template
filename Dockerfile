@@ -19,14 +19,16 @@ RUN set -eux; \
 	useradd --no-log-init -g $DOCKER_USER --uid=$DOCKER_HOST_UID \
   -d $DOCKER_USER_HOME -ms /bin/bash $DOCKER_USER
 RUN mkdir /application && chown $DOCKER_USER:$DOCKER_USER /application
-RUN curl -s \
-  "https://archlinux.org/mirrorlist/?country=$MIRROR_LIST_COUNTRY&protocol=http&protocol=https&ip_version=4" \
-  | sed -e 's/^#Server/Server/' -e '/^#/d' > /etc/pacman.d/mirrorlist
-RUN pacman -Syu --noconfirm && pacman -S --noconfirm $BUILD_PACKAGES
+RUN set -eux; \
+  curl -fsSL "https://archlinux.org/mirrorlist/?country=${MIRROR_LIST_COUNTRY}&protocol=http&protocol=https&ip_version=4" \
+  | sed -e 's/^\s*#Server/Server/' -e '/^\s*#/d' \
+  > /etc/pacman.d/mirrorlist; \
+  grep -q '^Server' /etc/pacman.d/mirrorlist
+RUN pacman -Syu --noconfirm && pacman -S --noconfirm --needed $BUILD_PACKAGES
 RUN echo "${DOCKER_USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 ENV PYENV_ROOT=$DOCKER_USER_HOME/.pyenv
 ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
-RUN pyenv install $PYTHON_VERSION
+RUN pyenv install --skip-existing $PYTHON_VERSION
 RUN pyenv global $PYTHON_VERSION
 RUN pyenv rehash
 ENV PYTHONUNBUFFERED=1
@@ -39,7 +41,7 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv --copies $VIRTUAL_ENV
 ENV PATH=$VIRTUAL_ENV/bin:$PATH
 RUN pip install --upgrade pip
-RUN curl -sSL https://install.python-poetry.org | python -
+RUN curl -sSL https://install.python-poetry.org | POETRY_VERSION=$POETRY_VERSION python -
 ENV PATH=$POETRY_HOME/bin:$PATH
 ENV PYTHONPATH=/application/src
 ENV PROJECT_ROOT=/application
@@ -62,14 +64,17 @@ ARG POETRY_OPTIONS_APP="--only main --compile"
 RUN poetry install $POETRY_OPTIONS_APP -n -v -C /build && \
   rm -rf $POETRY_CACHE_DIR/* && rm -rf $PIP_CACHE_DIR/*
 RUN sed -i "/\b\($DOCKER_USER\)\b/d" /etc/sudoers
-RUN pacman -Scc <<< Y <<< Y
+RUN pacman -Scc --noconfirm
 USER $DOCKER_USER
 WORKDIR /application
 
 FROM python-base AS build-deps-dev
+ARG DOCKER_USER=devuser
 ARG POETRY_OPTIONS_DEV="--no-root --with-dev --compile"
 COPY pyproject.toml poetry.lock /build/
 RUN poetry install $POETRY_OPTIONS_DEV -n -v -C /build 
+RUN mkdir -p $POETRY_CACHE_DIR $PIP_CACHE_DIR && \
+  chown -R $DOCKER_USER $POETRY_CACHE_DIR $PIP_CACHE_DIR
 
 FROM build-deps-dev AS dev-build
 ARG DOCKER_USER=devuser
@@ -80,7 +85,9 @@ FROM build-deps-dev AS vim-ide
 ARG DOCKER_USER=devuser
 ARG DOCKER_USER_HOME=/home/devuser
 ARG VIM_PACKAGES="python vim ctags ripgrep bat npm nodejs-lts-jod"
-RUN pacman -Sy && pacman -S --noconfirm $VIM_PACKAGES
+ARG NPM_GLOBAL_PACKAGES=""
+RUN pacman -S --noconfirm --needed $VIM_PACKAGES
+RUN if [ -n "$NPM_GLOBAL_PACKAGES" ]; then npm install -g --no-fund --no-audit $NPM_GLOBAL_PACKAGES; fi
 USER $DOCKER_USER
 RUN curl -fLo $DOCKER_USER_HOME/.vim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
