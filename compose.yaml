@@ -3,6 +3,8 @@ x-default-env: &default-env
   PIP_DEFAULT_TIMEOUT: "100"
   PYTHONUNBUFFERED: "1"
 
+x-platform: &platform ${DOCKER_PLATFORM:-linux/amd64}
+
 x-default-args: &default-args
   TZ: ${TZ:-Asia/Vladivostok}
   DOCKER_HOST_UID: ${DOCKER_HOST_UID:-1000}
@@ -11,23 +13,22 @@ x-default-args: &default-args
   DOCKER_USER_HOME: ${DOCKER_USER_HOME:-/home/developer}
   MIRROR_LIST_COUNTRY: ${MIRROR_LIST_COUNTRY:-RU}
   BUILD_PACKAGES: ${BUILD_PACKAGES:-pyenv git gnupg sudo postgresql-libs mariadb-libs openmp}
-  VIM_PACKAGES: ${VIM_PACKAGES:-python vim ctags ripgrep bat npm nodejs-lts-jod}
+  VIM_PACKAGES: ${VIM_PACKAGES:-python vim ctags ripgrep bat npm nodejs-lts-jod openai-codex gemini-cli}
   PYTHON_VERSION: ${PYTHON_VERSION:-3.14}
   POETRY_VERSION: ${POETRY_VERSION:-2.2.1}
   POETRY_OPTIONS_APP: ${POETRY_OPTIONS_APP:---only main --compile}
-  POETRY_OPTIONS_DEV: ${POETRY_OPTIONS_DEV:---no-root --with-dev --compile}
-  NPM_GLOBAL_PACKAGES: ${NPM_GLOBAL_PACKAGES:-}
+  POETRY_OPTIONS_DEV: ${POETRY_OPTIONS_DEV:---no-root --with dev --compile}
 
 services:
   python-base:
-    platform: linux/amd64
+    platform: *platform
     build:
       target: python-base
       args: *default-args
     environment:
       <<: *default-env
   poetry:
-    platform: linux/amd64
+    platform: *platform
     entrypoint: poetry
     build:
       target: poetry
@@ -45,7 +46,7 @@ services:
         source: poetry-cache
         target: /var/cache/pypoetry
   vim-ide:
-    platform: linux/amd64
+    platform: *platform
     entrypoint: vim
     build:
       target: vim-ide
@@ -59,10 +60,10 @@ services:
         source: .
         target: /application
   gemini:
-    platform: linux/amd64
+    platform: *platform
     entrypoint: gemini
     build:
-      target: vim-ide
+      target: dev-build
       args: *default-args
     environment:
       <<: *default-env
@@ -72,10 +73,10 @@ services:
         source: .
         target: /application
   codex:
-    platform: linux/amd64
+    platform: *platform
     entrypoint: codex
     build:
-      target: vim-ide
+      target: dev-build
       args: *default-args
     environment:
       <<: *default-env
@@ -85,7 +86,7 @@ services:
         source: .
         target: /application
   jupyterlab:
-    platform: linux/amd64
+    platform: *platform
     entrypoint:
       - jupyter-lab
       - --port=8888
@@ -104,7 +105,7 @@ services:
         source: .
         target: /application
   app:
-    platform: linux/amd64
+    platform: *platform
     entrypoint: template_bin
     build:
       target: app-build
