@@ -7,6 +7,8 @@
 * [About the Template](#about-the-template)
 * [Features](#features)
 * [Tested with](#tested-with)
+* [Prerequisites](#prerequisites)
+* [Quickstart](#quickstart)
 * [🚀 Getting Started](#-getting-started)
   * [1. Configure environment and Python settings and API tokens](#1-configure-environment-and-python-settings-and-api-tokens)
   * [2. Set up Python project dependencies](#2-set-up-python-project-dependencies)
@@ -18,9 +20,10 @@
   * [Optional: Run JupyterLab](#optional-run-jupyterlab)
 * [💻 AI-Powered CLI Workflow (Gemini & Codex)](#-ai-powered-cli-workflow-gemini--codex)
   * [If you do not have API keys](#if-you-do-not-have-api-keys)
-  * [Interactive CLI Usage in Vim Terminal](#interactive-cli-usage-in-vim-terminal)
+  * [Where to run commands](#where-to-run-commands)
   * [Gemini CLI examples](#gemini-cli-examples)
   * [Codex CLI examples](#codex-cli-examples)
+* [🔒 Security notes](#-security-notes)
 * [🧠 Vim IDE Features](#-vim-ide-features)
   * [🔌Included Plugins](#included-plugins)
   * [🗂 Additional Notes](#-additional-notes)
@@ -46,34 +49,55 @@ workflow with Vim at the center.
 > dependencies.
 
 The configuration is intentionally minimal and easy to adapt. You’re free to:
-- Add or update Python dependencies
-- Swap in different OS packages
-- Customize the Vim environment
-- Change Python or Poetry versions
+
+* Add or update Python dependencies
+* Swap in different OS packages
+* Customize the Vim environment
+* Change Python or Poetry versions
 
 Use it as-is or tailor it to match your team's development workflow.
 
 ## Features
 
-- **Reproducible environments** for Python development
-- **IDE-like Vim setup**, ready to go out of the box
-- Supports custom **Python and Poetry** versions
-- Simple to extend with Jupyter, SQL drivers, and more
-- Works identically on any machine with Docker
+* **Reproducible environments** for Python development
+* **IDE-like Vim setup**, ready to go out of the box
+* Supports custom **Python and Poetry** versions
+* Simple to extend with Jupyter, SQL drivers, and more
+* Works identically on any machine with Docker
 
 ## Tested with
 
-- **Docker**: `27.3.1` – `29.1.1`
-- **buildx**: `0.20.0` – `0.30.0`
-- **Compose**: `2.32.1` – `2.40.3`
+* **Docker**: `27.3.1` – `29.1.1`
+* **buildx**: `0.20.0` – `0.30.0`
+* **Compose**: `2.32.1` – `2.40.3`
+
+## Prerequisites
+
+* Docker + Docker Compose v2 (and `docker buildx`)
+* A supported `DOCKER_PLATFORM` for your machine (for example, Apple Silicon
+  users often set `DOCKER_PLATFORM=linux/arm64`)
+* Note: the `codex-web-login` service uses `network_mode: host` (works on
+  Linux; Docker Desktop users may need an alternative login flow). If needed,
+  authenticate on the host (outside Docker) and use `OPENAI_API_KEY` /
+  `GEMINI_API_KEY` inside the containers.
+
+## Quickstart
+
+```bash
+cp .env.dist .env
+docker compose build vim-ide
+docker compose run --rm vim-ide
+```
+
+To exit Vim: `:q` (or `:qa` to quit all).
 
 ## 🚀 Getting Started
 
 ### 1. Configure environment and Python settings and API tokens
 
-Set OS packages, `DOCKER_PLATFORM` (if not linux/amd64), a released
-`PYTHON_VERSION`, Poetry version, etc., and your API keys for `OPENAI_API_KEY`
-and `GEMINI_API_KEY`.
+Set OS packages, `DOCKER_PLATFORM` (if not linux/amd64), a `PYTHON_VERSION`
+available via `pyenv`, Poetry version, etc., and your API keys for
+`OPENAI_API_KEY` and `GEMINI_API_KEY`.
 
 ```bash
 cp .env.dist .env
@@ -125,6 +149,10 @@ docker compose run --rm vim-ide
 docker compose build app
 docker compose run --rm app
 ```
+
+> ℹ️ `vim-ide`, `poetry`, `codex`, `gemini`, and `jupyterlab` bind-mount your
+> working directory into the container for live editing. `app` is a “packaged”
+> image (it copies your sources), so code changes require rebuilding `app`.
 
 ### Optional: Run Codex or Gemini (see more examples below)
 
@@ -183,24 +211,20 @@ docker compose run --rm gemini
 and choose “Login with Google.”
 
 After completion, the authorization file will be saved to
-`${DOCKER_USER_HOME}/.codex` or `${DOCKER_USER_HOME}/.gemini`. In this template,
-those directories are persisted between runs via the `codex-auth` and
+`${DOCKER_USER_HOME}/.codex` or `${DOCKER_USER_HOME}/.gemini`. In this
+template, those directories are persisted between runs via the `codex-auth` and
 `gemini-auth` Docker volumes, which allows the agent CLI tool to be restarted
 without any additional authentication steps.
 
-### Interactive CLI Usage in Vim Terminal
+### Where to run commands
 
-For a more integrated workflow, you can use the Gemini and Codex CLIs directly
-within a Vim terminal. This allows for quick iteration, context-aware
-assistance, and seamless integration with your editing environment.
+You can run the CLIs either:
 
-To open a terminal within Vim, you can use `:terminal` or `:vertical term` or
-`:tab terminal`. Once inside the terminal, you can invoke the CLI tools as
-usual.
+**Inside the container** (recommended): `docker compose run --rm vim-ide`, then
+open a Vim terminal (`:terminal`) and run `codex` / `gemini`.
 
-Alternatively, the AI CLI tools can be run outside Vim, in a separate terminal
-tab, window, or tmux pane. This is often preferable for longer interactive
-sessions or when reviewing large outputs. See, `codex` and `gemini` services in
+**Outside Vim but still in Docker**: `docker compose run --rm codex` or `docker
+compose run --rm gemini`. See the `codex` and `gemini` services in
 `compose.yaml`.
 
 ### Gemini CLI examples
@@ -254,7 +278,7 @@ codex
 or using docker compose:
 
 ```bash
-docker compose run --rm codex 
+docker compose run --rm codex
 ```
 
 Generate a new Python class (hypothetical):
@@ -274,6 +298,15 @@ Suggest tests for a file (hypothetical):
 ```bash
 codex suggest tests --file src/sample/main.py
 ```
+
+## 🔒 Security notes
+
+Never commit `.env` (it contains secrets like `OPENAI_API_KEY`,
+`GEMINI_API_KEY`, and `JUPYTER_TOKEN`).
+
+Browser-based auth persists under `${DOCKER_USER_HOME}/.codex` and
+`${DOCKER_USER_HOME}/.gemini` via the `codex-auth` and `gemini-auth` Docker
+volumes.
 
 ## 🧠 Vim IDE Features
 
@@ -296,50 +329,62 @@ productivity and designed to work out of the box — but is fully customizable.
 
 🧠 Code Intelligence
 
-- [coc.nvim](https://github.com/neoclide/coc.nvim) – LSP engine with autocompletion, diagnostics, and more
-- [coc-pyright](https://github.com/fannheyward/coc-pyright) – Python LSP support
-- [ultisnips](https://github.com/SirVer/ultisnips) + [vim-snippets](https://github.com/honza/vim-snippets) – Powerful snippet expansion
+* [coc.nvim](https://github.com/neoclide/coc.nvim) – LSP engine with
+  autocompletion, diagnostics, and more
+* [coc-pyright](https://github.com/fannheyward/coc-pyright) – Python LSP
+  support
+* [ultisnips](https://github.com/SirVer/ultisnips) +
+  [vim-snippets](https://github.com/honza/vim-snippets) – Powerful snippet
+  expansion
 
 📁 Navigation & UI
 
-- [NERDTree](https://github.com/preservim/nerdtree) – File tree explorer
-- [fzf.vim](https://github.com/junegunn/fzf.vim) – Fuzzy file and symbol search
-- [tagbar](https://github.com/preservim/tagbar) – Code structure sidebar
-- [vim-airline](https://github.com/vim-airline/vim-airline) – Status/tab line enhancement
+* [NERDTree](https://github.com/preservim/nerdtree) – File tree explorer
+* [fzf.vim](https://github.com/junegunn/fzf.vim) – Fuzzy file and symbol search
+* [tagbar](https://github.com/preservim/tagbar) – Code structure sidebar
+* [vim-airline](https://github.com/vim-airline/vim-airline) – Status/tab line
+  enhancement
 
 🔄 Git Integration
 
-- [vim-fugitive](https://github.com/tpope/vim-fugitive) – Git commands from within Vim
-- [vim-gitgutter](https://github.com/airblade/vim-gitgutter) – Git diff signs in the gutter
+* [vim-fugitive](https://github.com/tpope/vim-fugitive) – Git commands from
+  within Vim
+* [vim-gitgutter](https://github.com/airblade/vim-gitgutter) – Git diff signs
+  in the gutter
 
 📝 Markdown Support
 
-- [vim-markdown](https://github.com/plasticboy/vim-markdown) – Markdown editing enhancements
-- [vim-markdown-toc](https://github.com/mzlogin/vim-markdown-toc) – Auto-generated table of contents
+* [vim-markdown](https://github.com/plasticboy/vim-markdown) – Markdown editing
+  enhancements
+* [vim-markdown-toc](https://github.com/mzlogin/vim-markdown-toc) –
+  Auto-generated table of contents
 
 📊 Data Science & Python Dev
 
-- [vim-slime](https://github.com/jpalardy/vim-slime) – Send code to REPL or terminal
-- [vim-doge](https://github.com/kkoomen/vim-doge) – Generate docstrings in Google/Numpy style
+* [vim-slime](https://github.com/jpalardy/vim-slime) – Send code to REPL or
+  terminal
+* [vim-doge](https://github.com/kkoomen/vim-doge) – Generate docstrings in
+  Google/Numpy style
 
 🎨 Theme & Aesthetics
 
-- [gruvbox-material](https://github.com/sainnhe/gruvbox-material) – Color scheme (dark, high-contrast)
-- Airline integrated with Gruvbox
+* [gruvbox-material](https://github.com/sainnhe/gruvbox-material) – Color
+  scheme (dark, high-contrast)
+* Airline integrated with Gruvbox
 
 ⚙️ Python-Specific Tuning
 
-- Smart indentation for Python, with 4-space formatting
-- `textwidth` and `colorcolumn` set to PEP8 defaults
-- Spellcheck enabled for English and Russian
-- LSP-based completion, hover docs, jump-to-definition, code actions
+* Smart indentation for Python, with 4-space formatting
+* `textwidth` and `colorcolumn` set to PEP8 defaults
+* Spellcheck enabled for English and Russian
+* LSP-based completion, hover docs, jump-to-definition, code actions
 
 ### 🗂 Additional Notes
 
-- To customize the LSP setup, see `.coc-settings.json`
-- To update CoC extensions: `:CocUpdate`
-- Snippets can be edited under `~/.vim/plugged/vim-snippets`
-- Full configuration lives in `.vimrc.dist` — tweak freely
+* To customize the LSP setup, see `.coc-settings.json`
+* To update CoC extensions: `:CocUpdate`
+* Snippets can be edited under `~/.vim/plugged/vim-snippets`
+* Full configuration lives in `.vimrc.dist` — tweak freely
 
 This is a template for python-based projects. Many DS/ML workflows require
 hardware-specific platforms in detailed OS-level libraries and python

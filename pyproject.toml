@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "vim-python-docker-template"
 version = "0.2.0"
-description = "Templete"
+description = "Template"
 authors = [
     "John Dev <j_dev@domain.com>",
 ]
