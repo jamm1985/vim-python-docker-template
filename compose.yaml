@@ -59,6 +59,12 @@ services:
       - type: bind
         source: .
         target: /application
+      - type: volume
+        source: gemini-auth
+        target: ${DOCKER_USER_HOME}/.gemini
+      - type: volume
+        source: codex-auth
+        target: ${DOCKER_USER_HOME}/.codex
   gemini:
     platform: *platform
     entrypoint: gemini
@@ -72,6 +78,9 @@ services:
       - type: bind
         source: .
         target: /application
+      - type: volume
+        source: gemini-auth
+        target: ${DOCKER_USER_HOME}/.gemini
   codex:
     platform: *platform
     entrypoint: codex
@@ -85,6 +94,22 @@ services:
       - type: bind
         source: .
         target: /application
+      - type: volume
+        source: codex-auth
+        target: ${DOCKER_USER_HOME}/.codex
+  codex-web-login:
+    platform: *platform
+    entrypoint: codex login
+    build:
+      target: dev-build
+      args: *default-args
+    environment:
+      <<: *default-env
+    network_mode: host
+    volumes:
+      - type: volume
+        source: codex-auth
+        target: ${DOCKER_USER_HOME}/.codex
   jupyterlab:
     platform: *platform
     entrypoint:
@@ -116,4 +141,8 @@ volumes:
   pip-cache:
     driver: local
   poetry-cache:
+    driver: local
+  codex-auth:
+    driver: local
+  gemini-auth:
     driver: local

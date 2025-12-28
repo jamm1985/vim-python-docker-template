@@ -84,6 +84,12 @@ RUN poetry install $POETRY_OPTIONS_DEV -n -v -C /build && \
   rm -rf $POETRY_CACHE_DIR/* $PIP_CACHE_DIR/*
 RUN mkdir -p $POETRY_CACHE_DIR $PIP_CACHE_DIR && \
   chown -R $DOCKER_USER $POETRY_CACHE_DIR $PIP_CACHE_DIR
+RUN mkdir -p $DOCKER_USER_HOME/.codex && \
+  chown -R $DOCKER_USER $DOCKER_USER_HOME/.codex
+RUN mkdir -p $DOCKER_USER_HOME/.gemini && \
+  chown -R $DOCKER_USER $DOCKER_USER_HOME/.gemini
+RUN mkdir -p $DOCKER_USER_HOME/.config && \
+  chown -R $DOCKER_USER $DOCKER_USER_HOME/.config
 
 FROM build-deps-dev AS dev-build
 ARG DOCKER_USER=devuser

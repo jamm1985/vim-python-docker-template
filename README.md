@@ -4,11 +4,20 @@
 
 <!-- vim-markdown-toc GFM -->
 
-* [🧰 About the Template](#-about-the-template)
-* [✅ Features](#-features)
-* [🧪 Tested with](#-tested-with)
+* [About the Template](#about-the-template)
+* [Features](#features)
+* [Tested with](#tested-with)
 * [🚀 Getting Started](#-getting-started)
+  * [1. Configure environment and Python settings and API tokens](#1-configure-environment-and-python-settings-and-api-tokens)
+  * [2. Set up Python project dependencies](#2-set-up-python-project-dependencies)
+  * [3. Build your Vim IDE image](#3-build-your-vim-ide-image)
+  * [4. Start developing inside the container](#4-start-developing-inside-the-container)
+  * [5. Update dependencies when needed](#5-update-dependencies-when-needed)
+  * [Build and run your application](#build-and-run-your-application)
+  * [Optional: Run Codex or Gemini (see more examples below)](#optional-run-codex-or-gemini-see-more-examples-below)
+  * [Optional: Run JupyterLab](#optional-run-jupyterlab)
 * [💻 AI-Powered CLI Workflow (Gemini & Codex)](#-ai-powered-cli-workflow-gemini--codex)
+  * [If you do not have API keys](#if-you-do-not-have-api-keys)
   * [Interactive CLI Usage in Vim Terminal](#interactive-cli-usage-in-vim-terminal)
   * [Gemini CLI examples](#gemini-cli-examples)
   * [Codex CLI examples](#codex-cli-examples)
@@ -18,7 +27,7 @@
 
 <!-- vim-markdown-toc -->
 
-## 🧰 About the Template
+## About the Template
 
 **vim-python-docker-template** is a lightweight, flexible starting point for
 containerized Python development. It’s especially well-suited for data science
@@ -44,15 +53,15 @@ The configuration is intentionally minimal and easy to adapt. You’re free to:
 
 Use it as-is or tailor it to match your team's development workflow.
 
-## ✅ Features
+## Features
 
-- 📦 **Reproducible environments** for Python development
-- 🛠 **IDE-like Vim setup**, ready to go out of the box
-- 🐍 Supports custom **Python and Poetry** versions
-- 🧩 Simple to extend with Jupyter, SQL drivers, and more
-- 🔁 Works identically on any machine with Docker
+- **Reproducible environments** for Python development
+- **IDE-like Vim setup**, ready to go out of the box
+- Supports custom **Python and Poetry** versions
+- Simple to extend with Jupyter, SQL drivers, and more
+- Works identically on any machine with Docker
 
-## 🧪 Tested with
+## Tested with
 
 - **Docker**: `27.3.1` – `29.1.1`
 - **buildx**: `0.20.0` – `0.30.0`
@@ -60,14 +69,18 @@ Use it as-is or tailor it to match your team's development workflow.
 
 ## 🚀 Getting Started
 
-1. Configure environment and Python settings and API tokens
+### 1. Configure environment and Python settings and API tokens
+
+Set OS packages, `DOCKER_PLATFORM` (if not linux/amd64), a released
+`PYTHON_VERSION`, Poetry version, etc., and your API keys for `OPENAI_API_KEY`
+and `GEMINI_API_KEY`.
 
 ```bash
 cp .env.dist .env
-vim .env  # Set OS packages, DOCKER_PLATFORM (if not linux/amd64), a released PYTHON_VERSION, Poetry version, etc., and your API keys for OPENAI_API_KEY and GEMINI_API_KEY.
+vim .env
 ```
 
-2. Set up Python project dependencies
+### 2. Set up Python project dependencies
 
 ```bash
 vim pyproject.toml  # Edit dependencies, metadata, etc.
@@ -76,7 +89,7 @@ docker compose run --rm poetry lock  # Generate or update poetry.lock
 # git add poetry.lock
 ```
 
-3. Build your Vim IDE image
+### 3. Build your Vim IDE image
 
 ```bash
 cp .vimrc.dist .vimrc
@@ -86,13 +99,13 @@ git config --local user.email you@example.com
 docker compose build vim-ide
 ```
 
-4. Start developing inside the container
+### 4. Start developing inside the container
 
 ```bash
 docker compose run --rm vim-ide
 ```
 
-5. Update dependencies when needed
+### 5. Update dependencies when needed
 
 ```bash
 docker compose run --rm poetry lock
@@ -106,15 +119,18 @@ docker compose build vim-ide
 docker compose run --rm vim-ide
 ```
 
-6. Build and run your application
+### Build and run your application
 
 ```bash
 docker compose build app
 docker compose run --rm app
 ```
 
-- Optional: Run Codex or Gemini (see more examples below)
-  - Note: `codex` and `gemini` CLIs are installed during the image build via Arch packages (`openai-codex`, `gemini-cli`) configured in `VIM_PACKAGES` inside `.env`.
+### Optional: Run Codex or Gemini (see more examples below)
+
+> 🔄 Note: `codex` and `gemini` CLIs are installed during the image build via
+> Arch packages (`openai-codex`, `gemini-cli`) configured in `VIM_PACKAGES`
+> inside `.env`.
 
 ```bash
 docker compose build codex
@@ -126,7 +142,7 @@ docker compose build gemini
 docker compose run --rm gemini
 ```
 
-- Optional: Run JupyterLab
+### Optional: Run JupyterLab
 
 ```bash
 docker compose build jupyterlab
@@ -144,6 +160,33 @@ Vim—so you can inspect, generate, and reason about code without breaking flow.
 
 NOTE: To use AI CLI tools such as Gemini or Codex, you must configure API keys
 according to each provider’s official documentation.
+
+### If you do not have API keys
+
+API keys for Codex and Gemini require separate billing. In some cases, you can
+use an OpenAI subscription (for example, ChatGPT Pro) or take advantage of the
+available limits of a personal Google account.
+
+This type of access requires authentication via a browser. For OpenAI, run the
+command:
+
+```bash
+docker compose run --rm codex-web-login
+```
+
+For Gemini, there is no separate command — just run Gemini like
+
+```bash
+docker compose run --rm gemini
+```
+
+and choose “Login with Google.”
+
+After completion, the authorization file will be saved to
+`${DOCKER_USER_HOME}/.codex` or `${DOCKER_USER_HOME}/.gemini`. In this template,
+those directories are persisted between runs via the `codex-auth` and
+`gemini-auth` Docker volumes, which allows the agent CLI tool to be restarted
+without any additional authentication steps.
 
 ### Interactive CLI Usage in Vim Terminal
 
@@ -240,14 +283,14 @@ productivity and designed to work out of the box — but is fully customizable.
 
 ✨ Core Capabilities
 
-- ✅ Syntax highlighting & intelligent folding
-- ✅ Autocompletion and LSP features via `coc.nvim`
-- ✅ Linting, formatting, and diagnostics
-- ✅ Git integration and diff signs
-- ✅ Markdown editing with ToC, folding, and preview support
-- ✅ Snippets, code actions, and refactoring shortcuts
-- ✅ Enhanced status line, file tree, and fuzzy finding
-- ✅ Python-focused indentation, folding, and style enforcement
+* Syntax highlighting & intelligent folding
+* Autocompletion and LSP features via `coc.nvim`
+* Linting, formatting, and diagnostics
+* Git integration and diff signs
+* Markdown editing with ToC, folding, and preview support
+* Snippets, code actions, and refactoring shortcuts
+* Enhanced status line, file tree, and fuzzy finding
+* Python-focused indentation, folding, and style enforcement
 
 ### 🔌Included Plugins
 
