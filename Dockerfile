@@ -20,10 +20,22 @@ RUN set -eux; \
   -d $DOCKER_USER_HOME -ms /bin/bash $DOCKER_USER
 RUN mkdir /application && chown $DOCKER_USER:$DOCKER_USER /application
 RUN set -eux; \
-  curl -fsSL "https://archlinux.org/mirrorlist/?country=${MIRROR_LIST_COUNTRY}&protocol=http&protocol=https&ip_version=4" \
-  | sed -e 's/^\s*#Server/Server/' -e '/^\s*#/d' \
-  > /etc/pacman.d/mirrorlist; \
-  grep -q '^Server' /etc/pacman.d/mirrorlist
+  tmp="$(mktemp)"; \
+  if curl -fsSL \
+      --connect-timeout 10 \
+      --max-time 30 \
+      --retry 5 \
+      --retry-delay 1 \
+      --retry-all-errors \
+      "https://archlinux.org/mirrorlist/?country=${MIRROR_LIST_COUNTRY}&protocol=https&ip_version=4&use_mirror_status=on" \
+    | sed -e 's/^\s*#Server/Server/' -e '/^\s*#/d' \
+    > "$tmp" \
+    && grep -q '^Server' "$tmp"; then \
+      mv "$tmp" /etc/pacman.d/mirrorlist; \
+  else \
+      echo "WARN: mirrorlist update failed; keeping existing /etc/pacman.d/mirrorlist" >&2; \
+      rm -f "$tmp"; \
+  fi
 RUN pacman -Syu --noconfirm && \
   pacman -S --noconfirm --needed $BUILD_PACKAGES && \
   pacman -Scc --noconfirm && \
