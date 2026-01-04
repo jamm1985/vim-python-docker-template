@@ -1,7 +1,7 @@
 FROM archlinux:base-devel AS python-base
 ARG TZ=Asia/Vladivostok
-ARG DOCKER_HOST_UID=10000
-ARG DOCKER_HOST_GID=10000
+ARG DOCKER_HOST_UID=1000
+ARG DOCKER_HOST_GID=1000
 ARG DOCKER_USER=devuser
 ARG DOCKER_USER_HOME=/home/devuser
 ARG MIRROR_LIST_COUNTRY=RU
@@ -61,17 +61,22 @@ RUN curl -sSL https://install.python-poetry.org | POETRY_VERSION=$POETRY_VERSION
 ENV PATH=$POETRY_HOME/bin:$PATH
 ENV PYTHONPATH=/application/src
 ENV PROJECT_ROOT=/application
+ENV HOME=$DOCKER_USER_HOME
 
 FROM python-base AS poetry
+ARG DOCKER_HOST_UID=1000
+ARG DOCKER_HOST_GID=1000
 ARG DOCKER_USER=devuser
 RUN mkdir -p $POETRY_CACHE_DIR && \
   chown -R $DOCKER_USER $POETRY_CACHE_DIR
 RUN mkdir -p $PIP_CACHE_DIR && \
   chown -R $DOCKER_USER $PIP_CACHE_DIR
-USER $DOCKER_USER
+USER ${DOCKER_HOST_UID}:${DOCKER_HOST_GID}
 WORKDIR /application
 
 FROM python-base AS app-build
+ARG DOCKER_HOST_UID=1000
+ARG DOCKER_HOST_GID=1000
 ARG DOCKER_USER=devuser
 COPY src/ build/src
 COPY README.md /build/
@@ -79,8 +84,8 @@ COPY pyproject.toml poetry.lock /build/
 ARG POETRY_OPTIONS_APP="--only main --compile"
 RUN poetry install $POETRY_OPTIONS_APP -n -v -C /build && \
   rm -rf $POETRY_CACHE_DIR/* && rm -rf $PIP_CACHE_DIR/*
-RUN sed -i "/\b\($DOCKER_USER\)\b/d" /etc/sudoers
-USER $DOCKER_USER
+RUN sed -i "/^${DOCKER_USER}[[:space:]]/d" /etc/sudoers
+USER ${DOCKER_HOST_UID}:${DOCKER_HOST_GID}
 WORKDIR /application
 
 FROM python-base AS build-deps-dev
@@ -104,15 +109,19 @@ RUN mkdir -p $DOCKER_USER_HOME/.config && \
   chown -R $DOCKER_USER $DOCKER_USER_HOME/.config
 
 FROM build-deps-dev AS dev-build
+ARG DOCKER_HOST_UID=1000
+ARG DOCKER_HOST_GID=1000
 ARG DOCKER_USER=devuser
-USER $DOCKER_USER
+USER ${DOCKER_HOST_UID}:${DOCKER_HOST_GID}
 WORKDIR /application
 RUN git config --global --add safe.directory /application
 
 FROM build-deps-dev AS vim-ide
+ARG DOCKER_HOST_UID=1000
+ARG DOCKER_HOST_GID=1000
 ARG DOCKER_USER=devuser
 ARG DOCKER_USER_HOME=/home/devuser
-USER $DOCKER_USER
+USER ${DOCKER_HOST_UID}:${DOCKER_HOST_GID}
 RUN curl -fLo $DOCKER_USER_HOME/.vim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 RUN curl -fLo $DOCKER_USER_HOME/.vim/spell/en.utf-8.spl \
