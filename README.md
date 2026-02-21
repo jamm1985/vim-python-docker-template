@@ -1,9 +1,8 @@
 # vim-python-docker-template
 
-<p align="center">
-  <img width="49%" alt="2026-02-21-224551_hyprshot" src="https://github.com/user-attachments/assets/7782b78e-76e1-4571-a67e-7ab169b13fd9" />
-  <img width="49%" alt="2026-02-21-225317_hyprshot" src="https://github.com/user-attachments/assets/99cad8b7-0d6c-429a-818c-de5799feae3e" />
-</p>
+<img width="1502" height="1118" alt="2026-02-21-235742_hyprshot" src="https://github.com/user-attachments/assets/e127964e-bee6-4e04-b4f5-0ec868adde2c" />
+
+<img width="1528" height="1120" alt="2026-02-21-235947_hyprshot" src="https://github.com/user-attachments/assets/736614c3-0de0-4980-b828-6c938b4ae084" />
 
 <!-- vim-markdown-toc GFM -->
 
