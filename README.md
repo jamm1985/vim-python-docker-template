@@ -16,6 +16,7 @@
   * [4. Start developing inside the container](#4-start-developing-inside-the-container)
   * [5. Update dependencies when needed](#5-update-dependencies-when-needed)
   * [Build and run your application](#build-and-run-your-application)
+  * [Optional: Use `dev` for checks and experiments](#optional-use-dev-for-checks-and-experiments)
   * [Optional: Run Codex or Gemini (see more examples below)](#optional-run-codex-or-gemini-see-more-examples-below)
   * [Optional: Run JupyterLab](#optional-run-jupyterlab)
 * [💻 AI-Powered CLI Workflow (Gemini & Codex)](#-ai-powered-cli-workflow-gemini--codex)
@@ -67,19 +68,22 @@ Use it as-is or tailor it to match your team's development workflow.
 
 ## Tested with
 
-* **Docker**: `27.3.1` – `29.1.1`
-* **buildx**: `0.20.0` – `0.30.0`
-* **Compose**: `2.32.1` – `2.40.3`
+* **Docker**: `27.3.1` – `29.2.1`
+* **buildx**: `0.20.0` – `0.31.1`
+* **Compose**: `2.32.1` – `5.0.2`
 
 ## Prerequisites
 
-* Docker + Docker Compose v2 (and `docker buildx`)
+* Docker Engine with `docker compose` v2.0+ (minimum). Tested versions are
+  listed above.
+* `docker buildx` is required only for cross-platform builds (when
+  `DOCKER_PLATFORM` differs from your host). For native builds, it’s optional.
 * A supported `DOCKER_PLATFORM` for your machine (for example, Apple Silicon
   users often set `DOCKER_PLATFORM=linux/arm64`)
-* Note: the `codex-web-login` service uses `network_mode: host` (works on
-  Linux; Docker Desktop users may need an alternative login flow). If needed,
-  authenticate on the host (outside Docker) and use `OPENAI_API_KEY` /
-  `GEMINI_API_KEY` inside the containers.
+* Note: the `codex-web-login` service uses `network_mode: host`. This works on
+  Linux, and on macOS with recent Docker Desktop or OrbStack. If it doesn’t
+  work in your setup, authenticate on the host (outside Docker) and use
+  `OPENAI_API_KEY` / `GEMINI_API_KEY` inside the containers.
 
 ## Quickstart
 
@@ -91,13 +95,38 @@ docker compose run --rm vim-ide
 
 To exit Vim: `:q` (or `:qa` to quit all).
 
+If you just want a shell in the dev environment:
+
+```bash
+docker compose build dev
+docker compose run --rm dev
+```
+
 ## 🚀 Getting Started
 
 ### 1. Configure environment and Python settings and API tokens
 
-Set OS packages, `DOCKER_PLATFORM` (if not linux/amd64), a `PYTHON_VERSION`
-available via `pyenv`, Poetry version, etc., and your API keys for
-`OPENAI_API_KEY` and `GEMINI_API_KEY`.
+Set the `.env` values used by `compose.yaml` and the Docker build. Common ones:
+
+* `TZ` — Container timezone (e.g. `Europe/Berlin`, `Asia/Vladivostok`).
+* `DOCKER_PLATFORM` — Target architecture (e.g. `linux/amd64`, `linux/arm64`).
+* `DOCKER_HOST_UID` / `DOCKER_HOST_GID` — Host user/group IDs for file ownership.
+* `DOCKER_USER` / `DOCKER_USER_HOME` — Container user + home directory.
+* `MIRROR_LIST_COUNTRY` — Arch mirror country code for pacman.
+* `BUILD_PACKAGES` — System packages needed to build Python and runtime deps.
+* `VIM_PACKAGES` — Extra tools installed in the dev/vim images.
+* `PYTHON_VERSION` — Python version installed via pyenv.
+* `POETRY_VERSION` — Poetry version installed in the image.
+* `POETRY_OPTIONS_APP` — Poetry install flags for the app image.
+* `POETRY_OPTIONS_DEV` — Poetry install flags for the dev image.
+* `PIP_DEFAULT_TIMEOUT` — Pip network timeout (seconds).
+* `JUPYTER_TOKEN` — Token for JupyterLab login.
+* `OPENAI_API_KEY` — API key for Codex.
+* `GEMINI_API_KEY` — API key for Gemini.
+
+Set `DOCKER_HOST_UID` / `DOCKER_HOST_GID` to match your host user so files
+created in the container are editable on the host. On Unix-like systems, use
+`id -u` and `id -g` to get the correct values.
 
 ```bash
 cp .env.dist .env
@@ -150,15 +179,46 @@ docker compose build app
 docker compose run --rm app
 ```
 
-> ℹ️ `vim-ide`, `poetry`, `codex`, `gemini`, and `jupyterlab` bind-mount your
-> working directory into the container for live editing. `app` is a “packaged”
-> image (it copies your sources), so code changes require rebuilding `app`.
+> ℹ️ `vim-ide`, `poetry`, `codex`, `gemini`, `jupyterlab`, and `dev` bind-mount
+> your working directory into the container for live editing. `app` is a
+> “packaged” image (it copies your sources), so code changes require rebuilding
+> `app`.
+
+### Optional: Use `dev` for checks and experiments
+
+`dev` is a general-purpose image for running tools, scripts, and ad-hoc checks
+inside the same environment as your Vim IDE.
+
+`dev` and `vim-ide` are built from the same base stage, so they share the same
+tooling and system packages.
+
+```bash
+docker compose build dev
+docker compose run --rm dev
+```
+
+Examples:
+
+```bash
+docker compose run --rm dev ruff check
+docker compose run --rm dev ruff format --check
+```
+
+If you’re running as the non-root user and want to try extra system packages
+before baking them into the image, use `sudo`:
+
+```bash
+docker compose run --rm dev sudo pacman -S --noconfirm <package>
+```
 
 ### Optional: Run Codex or Gemini (see more examples below)
 
 > 🔄 Note: `codex` and `gemini` CLIs are installed during the image build via
 > Arch packages (`openai-codex`, `gemini-cli`) configured in `VIM_PACKAGES`
 > inside `.env`.
+>
+> `vim-ide` does not carry API keys or auth volumes, so run Codex/Gemini in a
+> separate terminal via their own services.
 
 ```bash
 docker compose build codex
@@ -182,9 +242,10 @@ docker compose run --rm --service-ports jupyterlab
 
 This project template is designed to be easily integrated with powerful CLI
 tools like Gemini and Codex, enhancing your development workflow with
-intelligent assistance.  Rather than replacing your editor, these tools
-complement Vim by running alongside it in a terminal—either inside or outside
-Vim—so you can inspect, generate, and reason about code without breaking flow.
+intelligent assistance. Rather than replacing your editor, these tools
+complement Vim by running alongside it in a separate terminal (via
+`docker compose run`) so you can inspect, generate, and reason about code
+without breaking flow.
 
 NOTE: To use AI CLI tools such as Gemini or Codex, you must configure API keys
 according to each provider’s official documentation.
@@ -195,14 +256,15 @@ API keys for Codex and Gemini require separate billing. In some cases, you can
 use an OpenAI subscription (for example, ChatGPT Pro) or take advantage of the
 available limits of a personal Google account.
 
-This type of access requires authentication via a browser. For OpenAI, run the
-command:
+This type of access requires authentication via a browser. Run these from a
+separate terminal via the `codex` / `gemini` services (not `vim-ide`). For
+OpenAI, run the command:
 
 ```bash
 docker compose run --rm codex-web-login
 ```
 
-For Gemini, there is no separate command — just run Gemini like
+For Gemini, there is no separate login command — just run:
 
 ```bash
 docker compose run --rm gemini
@@ -218,14 +280,14 @@ without any additional authentication steps.
 
 ### Where to run commands
 
-You can run the CLIs either:
+Run the CLIs in their own containers (recommended):
 
-**Inside the container** (recommended): `docker compose run --rm vim-ide`, then
-open a Vim terminal (`:terminal`) and run `codex` / `gemini`.
+```bash
+docker compose run --rm codex
+docker compose run --rm gemini
+```
 
-**Outside Vim but still in Docker**: `docker compose run --rm codex` or `docker
-compose run --rm gemini`. See the `codex` and `gemini` services in
-`compose.yaml`.
+`vim-ide` is for editing only; it does not mount the auth volumes or API keys.
 
 ### Gemini CLI examples
 
@@ -233,13 +295,8 @@ The Gemini CLI provides a conversational interface to interact with your
 codebase, allowing you to ask questions, refactor code, fix bugs, and add new
 features.
 
-Run interactively in Vim:
-
-```bash
-gemini
-```
-
-or using docker compose:
+Run all Gemini commands via Docker Compose so auth volumes and API keys are
+available:
 
 ```bash
 docker compose run --rm gemini
@@ -248,19 +305,19 @@ docker compose run --rm gemini
 Read a file:
 
 ```bash
-gemini read src/sample/main.py
+docker compose run --rm gemini read src/sample/main.py
 ```
 
 List directory contents:
 
 ```bash
-gemini list src/sample
+docker compose run --rm gemini list src/sample
 ```
 
 Explain a code snippet (hypothetical):
 
 ```bash
-gemini explain "def my_function():" --file src/sample/main.py
+docker compose run --rm gemini explain "def my_function():" --file src/sample/main.py
 ```
 
 ### Codex CLI examples
@@ -269,13 +326,8 @@ The Codex CLI (or similar code generation/analysis tools) can be used for
 automating code generation, understanding project structure, and suggesting
 improvements.
 
-Run interactively in Vim:
-
-```bash
-codex
-```
-
-or using docker compose:
+Run all Codex commands via Docker Compose so auth volumes and API keys are
+available:
 
 ```bash
 docker compose run --rm codex
@@ -284,19 +336,19 @@ docker compose run --rm codex
 Generate a new Python class (hypothetical):
 
 ```bash
-codex generate class User --fields name:str,email:str --language python --file src/models.py
+docker compose run --rm codex generate class User --fields name:str,email:str --language python --file src/models.py
 ```
 
 Analyze dependencies (hypothetical):
 
 ```bash
-codex analyze dependencies --project-root .
+docker compose run --rm codex analyze dependencies --project-root .
 ```
 
 Suggest tests for a file (hypothetical):
 
 ```bash
-codex suggest tests --file src/sample/main.py
+docker compose run --rm codex suggest tests --file src/sample/main.py
 ```
 
 ## 🔒 Security notes

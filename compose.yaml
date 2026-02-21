@@ -1,6 +1,6 @@
 x-default-env: &default-env
   POETRY_NO_INTERACTION: "1"
-  PIP_DEFAULT_TIMEOUT: "100"
+  PIP_DEFAULT_TIMEOUT: "600"
   PYTHONUNBUFFERED: "1"
 
 x-platform: &platform ${DOCKER_PLATFORM:-linux/amd64}
@@ -13,11 +13,20 @@ x-default-args: &default-args
   DOCKER_USER_HOME: ${DOCKER_USER_HOME:-/home/developer}
   MIRROR_LIST_COUNTRY: ${MIRROR_LIST_COUNTRY:-RU}
   BUILD_PACKAGES: ${BUILD_PACKAGES:-pyenv git gnupg sudo postgresql-libs mariadb-libs openmp}
-  VIM_PACKAGES: ${VIM_PACKAGES:-python vim ctags ripgrep bat npm nodejs-lts-jod openai-codex gemini-cli}
+  VIM_PACKAGES: ${VIM_PACKAGES:-python vim vim-spell-en vim-spell-ru ctags ripgrep bat npm nodejs-lts-jod openai-codex gemini-cli}
   PYTHON_VERSION: ${PYTHON_VERSION:-3.14}
-  POETRY_VERSION: ${POETRY_VERSION:-2.2.1}
+  POETRY_VERSION: ${POETRY_VERSION:-2.3.2}
   POETRY_OPTIONS_APP: ${POETRY_OPTIONS_APP:---only main --compile}
   POETRY_OPTIONS_DEV: ${POETRY_OPTIONS_DEV:---no-root --with dev --compile}
+
+x-shm: &default-shm
+  shm_size: 1g
+
+x-vol-app: &vol-app
+  type: bind
+  source: .
+  target: /application
+
 
 services:
   python-base:
@@ -36,15 +45,23 @@ services:
     environment:
       <<: *default-env
     volumes:
-      - type: bind
-        source: .
-        target: /application
+      - *vol-app
       - type: volume
         source: pip-cache
         target: /var/cache/pip
       - type: volume
         source: poetry-cache
         target: /var/cache/pypoetry
+  dev:
+    platform: *platform
+    <<: *default-shm
+    build:
+      target: dev-build
+      args: *default-args
+    environment:
+      <<: *default-env
+    volumes:
+      - *vol-app
   vim-ide:
     platform: *platform
     entrypoint: vim
@@ -53,18 +70,8 @@ services:
       args: *default-args
     environment:
       <<: *default-env
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
     volumes:
-      - type: bind
-        source: .
-        target: /application
-      - type: volume
-        source: gemini-auth
-        target: ${DOCKER_USER_HOME}/.gemini
-      - type: volume
-        source: codex-auth
-        target: ${DOCKER_USER_HOME}/.codex
+      - *vol-app
   gemini:
     platform: *platform
     entrypoint: gemini
@@ -75,9 +82,7 @@ services:
       <<: *default-env
       GEMINI_API_KEY: ${GEMINI_API_KEY}
     volumes:
-      - type: bind
-        source: .
-        target: /application
+      - *vol-app
       - type: volume
         source: gemini-auth
         target: ${DOCKER_USER_HOME}/.gemini
@@ -91,9 +96,7 @@ services:
       <<: *default-env
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     volumes:
-      - type: bind
-        source: .
-        target: /application
+      - *vol-app
       - type: volume
         source: codex-auth
         target: ${DOCKER_USER_HOME}/.codex
@@ -112,6 +115,7 @@ services:
         target: ${DOCKER_USER_HOME}/.codex
   jupyterlab:
     platform: *platform
+    <<: *default-shm
     entrypoint:
       - jupyter-lab
       - --port=8888
@@ -126,9 +130,7 @@ services:
     environment:
       <<: *default-env
     volumes:
-      - type: bind
-        source: .
-        target: /application
+      - *vol-app
   app:
     platform: *platform
     entrypoint: template_bin

@@ -7,7 +7,7 @@ ARG DOCKER_USER_HOME=/home/devuser
 ARG MIRROR_LIST_COUNTRY=RU
 ARG BUILD_PACKAGES="pyenv git gnupg sudo postgresql-libs mariadb-libs openmp"
 ARG PYTHON_VERSION=3.14
-ARG POETRY_VERSION=2.2.1
+ARG POETRY_VERSION=2.3.2
 RUN echo "* soft core 0" >> /etc/security/limits.conf && \
     echo "* hard core 0" >> /etc/security/limits.conf && \
     echo "* soft nofile 10000" >> /etc/security/limits.conf
@@ -36,7 +36,9 @@ RUN set -eux; \
       echo "WARN: mirrorlist update failed; keeping existing /etc/pacman.d/mirrorlist" >&2; \
       rm -f "$tmp"; \
   fi
-RUN pacman -Syu --noconfirm && \
+RUN grep -q '^DisableSandbox$' /etc/pacman.conf || \
+  sed -i '/^\[options\]/a DisableSandbox' /etc/pacman.conf && \
+  pacman -Syu --noconfirm && \
   pacman -S --noconfirm --needed $BUILD_PACKAGES && \
   pacman -Scc --noconfirm && \
   rm -rf /var/lib/pacman/sync/*
@@ -62,6 +64,7 @@ ENV PATH=$POETRY_HOME/bin:$PATH
 ENV PYTHONPATH=/application/src
 ENV PROJECT_ROOT=/application
 ENV HOME=$DOCKER_USER_HOME
+ENV PYTHON_VERSION=$PYTHON_VERSION
 
 FROM python-base AS poetry
 ARG DOCKER_HOST_UID=1000
@@ -90,7 +93,7 @@ WORKDIR /application
 
 FROM python-base AS build-deps-dev
 ARG DOCKER_USER=devuser
-ARG VIM_PACKAGES="python vim ctags ripgrep bat npm nodejs-lts-jod openai-codex gemini-cli"
+ARG VIM_PACKAGES="python vim vim-spell-en vim-spell-ru ctags ripgrep bat npm nodejs-lts-jod openai-codex gemini-cli"
 ARG POETRY_OPTIONS_DEV="--no-root --with-dev --compile"
 RUN pacman -Sy --noconfirm && \
   pacman -S --noconfirm --needed $VIM_PACKAGES && \
@@ -107,6 +110,8 @@ RUN mkdir -p $DOCKER_USER_HOME/.gemini && \
   chown -R $DOCKER_USER $DOCKER_USER_HOME/.gemini
 RUN mkdir -p $DOCKER_USER_HOME/.config && \
   chown -R $DOCKER_USER $DOCKER_USER_HOME/.config
+RUN mkdir -p $DOCKER_USER_HOME/.local/share/jupyter && \
+  chown $DOCKER_USER:$DOCKER_USER $DOCKER_USER_HOME/.local/share/jupyter
 
 FROM build-deps-dev AS dev-build
 ARG DOCKER_HOST_UID=1000
@@ -124,14 +129,6 @@ ARG DOCKER_USER_HOME=/home/devuser
 USER ${DOCKER_HOST_UID}:${DOCKER_HOST_GID}
 RUN curl -fLo $DOCKER_USER_HOME/.vim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-RUN curl -fLo $DOCKER_USER_HOME/.vim/spell/en.utf-8.spl \
-  --create-dirs https://ftp.nluug.nl/pub/vim/runtime/spell/en.utf-8.spl
-RUN curl -fLo $DOCKER_USER_HOME/.vim/spell/en.utf-8.sug \
-  --create-dirs https://ftp.nluug.nl/pub/vim/runtime/spell/en.utf-8.sug
-RUN curl -fLo $DOCKER_USER_HOME/.vim/spell/ru.utf-8.spl \
-  --create-dirs https://ftp.nluug.nl/pub/vim/runtime/spell/ru.utf-8.spl
-RUN curl -fLo $DOCKER_USER_HOME/.vim/spell/ru.utf-8.sug \
-  --create-dirs https://ftp.nluug.nl/pub/vim/runtime/spell/ru.utf-8.sug
 COPY --chown=$DOCKER_USER:$DOCKER_USER .vimrc $DOCKER_USER_HOME/.vimrc
 RUN cat $DOCKER_USER_HOME/.vimrc \
   |sed -n '/plug#begin/,/plug#end/p' > $DOCKER_USER_HOME/.vimrc_plug
