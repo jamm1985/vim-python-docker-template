@@ -1,6 +1,6 @@
 x-default-env: &default-env
   POETRY_NO_INTERACTION: "1"
-  PIP_DEFAULT_TIMEOUT: "600"
+  PIP_DEFAULT_TIMEOUT: "${PIP_DEFAULT_TIMEOUT:-300}"
   PYTHONUNBUFFERED: "1"
 
 x-platform: &platform ${DOCKER_PLATFORM:-linux/amd64}
@@ -15,6 +15,7 @@ x-default-args: &default-args
   BUILD_PACKAGES: ${BUILD_PACKAGES:-pyenv git gnupg sudo postgresql-libs mariadb-libs openmp}
   VIM_PACKAGES: ${VIM_PACKAGES:-python vim vim-spell-en vim-spell-ru ctags ripgrep bat npm nodejs-lts-jod openai-codex gemini-cli}
   PYTHON_VERSION: ${PYTHON_VERSION:-3.14}
+  PIP_DEFAULT_TIMEOUT: ${PIP_DEFAULT_TIMEOUT:-300}
   POETRY_VERSION: ${POETRY_VERSION:-2.3.2}
   POETRY_OPTIONS_APP: ${POETRY_OPTIONS_APP:---only main --compile}
   POETRY_OPTIONS_DEV: ${POETRY_OPTIONS_DEV:---no-root --with dev --compile}
@@ -102,7 +103,9 @@ services:
         target: ${DOCKER_USER_HOME}/.codex
   codex-web-login:
     platform: *platform
-    entrypoint: codex login
+    entrypoint:
+      - codex
+      - login
     build:
       target: dev-build
       args: *default-args
@@ -119,7 +122,7 @@ services:
     entrypoint:
       - jupyter-lab
       - --port=8888
-      - --ip="0.0.0.0"
+      - --ip=0.0.0.0
       - --no-browser
       - --IdentityProvider.token=${JUPYTER_TOKEN}
     ports:

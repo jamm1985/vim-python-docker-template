@@ -89,6 +89,8 @@ Use it as-is or tailor it to match your team's development workflow.
 
 ```bash
 cp .env.dist .env
+cp .vimrc.dist .vimrc
+cp .coc-settings.json.dist .coc-settings.json
 docker compose build vim-ide
 docker compose run --rm vim-ide
 ```
@@ -165,7 +167,9 @@ docker compose run --rm poetry lock
 ```
 
 > 🔄 Note: If you've changed dependencies (e.g. updated pyproject.toml or
-> poetry.lock), you must rebuild the Vim IDE image to apply them:
+> poetry.lock), rebuild the image(s) that install Python dependencies:
+> `vim-ide`, `dev`, `codex`, `gemini`, `jupyterlab`, and/or `app` depending on
+> what you run.
 
 ```bash
 docker compose build vim-ide
@@ -356,6 +360,9 @@ docker compose run --rm codex suggest tests --file src/sample/main.py
 Never commit `.env` (it contains secrets like `OPENAI_API_KEY`,
 `GEMINI_API_KEY`, and `JUPYTER_TOKEN`).
 
+If you need to share the resolved Compose config, use
+`docker compose config --no-interpolate` to avoid printing secret values.
+
 Browser-based auth persists under `${DOCKER_USER_HOME}/.codex` and
 `${DOCKER_USER_HOME}/.gemini` via the `codex-auth` and `gemini-auth` Docker
 volumes.
@@ -437,13 +444,3 @@ productivity and designed to work out of the box — but is fully customizable.
 * To update CoC extensions: `:CocUpdate`
 * Snippets can be edited under `~/.vim/plugged/vim-snippets`
 * Full configuration lives in `.vimrc.dist` — tweak freely
-
-This is a template for python-based projects. Many DS/ML workflows require
-hardware-specific platforms in detailed OS-level libraries and python
-dependencies. In some cases, it is useful to perform code editing in the same
-environment in which applications are run. This template can help vim users to
-run vim-ide with the same project environment on a local or remote machine.
-Please, feel free to massage everything in the template as you wish.
-
-Vim is configured in a modern style and supports almost all ide-specific
-features. Please see `.vimrc.dist` for reference.
