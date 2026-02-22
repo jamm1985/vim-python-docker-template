@@ -204,9 +204,11 @@ docker compose build dev
 docker compose run --rm dev
 ```
 
-Examples:
+Examples (quality checks): run tests with pytest, then run Ruff lint and
+format checks.
 
 ```bash
+docker compose run --rm dev pytest -q
 docker compose run --rm dev ruff check
 docker compose run --rm dev ruff format --check
 ```
