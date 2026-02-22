@@ -40,4 +40,4 @@ jobs:
         run: docker compose run --rm -e RUFF_CACHE_DIR=/tmp/ruff-cache dev ruff format --check .
 
       - name: Run tests
-        run: docker compose run --rm -e PYTHONDONTWRITEBYTECODE=1 -e PYTEST_ADDOPTS=--cache-dir=/tmp/pytest-cache dev pytest -q
+        run: docker compose run --rm -e PYTHONDONTWRITEBYTECODE=1 dev pytest -q -o cache_dir=/tmp/pytest-cache
