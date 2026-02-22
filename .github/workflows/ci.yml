@@ -50,6 +50,9 @@ jobs:
       - name: Check JupyterLab
         run: docker compose run --rm -T jupyterlab --version
 
+      - name: Run app smoke test
+        run: docker compose run --rm -T app
+
       - name: Ruff lint
         run: docker compose run --rm -e RUFF_CACHE_DIR=/tmp/ruff-cache dev ruff check .
 

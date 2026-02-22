@@ -17,7 +17,7 @@ def get_sample(k: int) -> list[float]:
     return floats.tolist()
 
 
-def run(k: int) -> list[float]:
+def run(k: int = 10) -> list[float]:
     """Example of run.
 
     Args:
