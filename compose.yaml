@@ -14,6 +14,7 @@ x-default-args: &default-args
   MIRROR_LIST_COUNTRY: ${MIRROR_LIST_COUNTRY:-RU}
   BUILD_PACKAGES: ${BUILD_PACKAGES:-pyenv git gnupg sudo postgresql-libs mariadb-libs openmp}
   VIM_PACKAGES: ${VIM_PACKAGES:-python vim vim-spell-en vim-spell-ru ctags ripgrep bat npm nodejs-lts-jod openai-codex gemini-cli}
+  CODE_SERVER_EXTENSIONS: ${CODE_SERVER_EXTENSIONS:-ms-python.python ms-pyright.pyright charliermarsh.ruff ms-toolsai.jupyter}
   PYTHON_VERSION: ${PYTHON_VERSION:-3.14}
   PIP_DEFAULT_TIMEOUT: ${PIP_DEFAULT_TIMEOUT:-300}
   POETRY_VERSION: ${POETRY_VERSION:-2.3.2}
@@ -115,7 +116,25 @@ services:
     volumes:
       - type: volume
         source: codex-auth
-        target: ${DOCKER_USER_HOME}/.codex
+        target: ${DOCKER_USER_HOME:-/home/developer}/.codex
+  code-server:
+    platform: *platform
+    <<: *default-shm
+    entrypoint:
+      - code-server
+      - --bind-addr=${CODE_SERVER_HOST:-0.0.0.0}:${CODE_SERVER_PORT:-8443}
+      - --auth=${CODE_SERVER_AUTH:-password}
+      - /application
+    ports:
+      - "${CODE_SERVER_PORT:-8443}:${CODE_SERVER_PORT:-8443}"
+    build:
+      target: code-server
+      args: *default-args
+    environment:
+      <<: *default-env
+      PASSWORD: ${CODE_SERVER_PASSWORD:-change_me}
+    volumes:
+      - *vol-app
   jupyterlab:
     platform: *platform
     <<: *default-shm

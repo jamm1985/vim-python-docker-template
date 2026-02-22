@@ -36,7 +36,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build images
-        run: docker compose build dev app vim-ide codex gemini jupyterlab
+        run: docker compose build dev app vim-ide codex gemini jupyterlab code-server
 
       - name: Check Vim
         run: docker compose run --rm -T vim-ide --version
@@ -49,6 +49,9 @@ jobs:
 
       - name: Check JupyterLab
         run: docker compose run --rm -T jupyterlab --version
+
+      - name: Check code-server
+        run: docker compose run --rm -T code-server --version
 
       - name: Run app smoke test
         run: docker compose run --rm -T app

@@ -23,6 +23,7 @@
   * [Optional: Use `dev` for checks and experiments](#optional-use-dev-for-checks-and-experiments)
   * [GitHub CI checks](#github-ci-checks)
   * [Optional: Run Codex or Gemini (see more examples below)](#optional-run-codex-or-gemini-see-more-examples-below)
+  * [Optional: Run code-server (VS Code in browser)](#optional-run-code-server-vs-code-in-browser)
   * [Optional: Run JupyterLab](#optional-run-jupyterlab)
 * [💻 AI-Powered CLI Workflow (Gemini & Codex)](#-ai-powered-cli-workflow-gemini--codex)
   * [If you do not have API keys](#if-you-do-not-have-api-keys)
@@ -76,10 +77,12 @@ Use it as-is or tailor it to match your team's development workflow.
 ```text
 .
 ├── .github/workflows/ci.yml      # GitHub CI: build dev/app, run Ruff + pytest
+├── .vscode/*.json.dist           # VS Code / code-server editor defaults
 ├── src/sample/main.py            # Example application module
 ├── tests/sample/test_main.py     # Example pytest tests to extend in your project
-├── Dockerfile                    # Multi-stage images (base, dev, vim-ide, app)
+├── Dockerfile                    # Multi-stage images (base, dev, vim-ide, code-server, app)
 ├── compose.yaml                  # Local service orchestration for template workflows
+├── .env.dist                     # Default compose/build/runtime variables
 ├── pyproject.toml                # Poetry dependencies and tool configuration
 ├── poetry.lock                   # Locked dependency graph
 └── README.md                     # Setup and usage documentation
@@ -113,6 +116,8 @@ cp .env.dist .env
 cp .vimrc.dist .vimrc
 cp .coc-settings.json.dist .coc-settings.json
 docker compose build vim-ide
+# Optional alternative editor:
+# docker compose build code-server
 docker compose run --rm vim-ide
 ```
 
@@ -144,6 +149,11 @@ Set the `.env` values used by `compose.yaml` and the Docker build. Common ones:
 * `POETRY_OPTIONS_DEV` — Poetry install flags for the dev image.
 * `PIP_DEFAULT_TIMEOUT` — Pip network timeout (seconds).
 * `JUPYTER_TOKEN` — Token for JupyterLab login.
+* `CODE_SERVER_EXTENSIONS` — Space-separated extension IDs preinstalled in code-server.
+* `CODE_SERVER_HOST` — Bind address for code-server (usually `0.0.0.0`).
+* `CODE_SERVER_PORT` — Port for code-server.
+* `CODE_SERVER_AUTH` — code-server auth mode (`password` or `none`).
+* `CODE_SERVER_PASSWORD` — Password used by code-server when auth is `password`.
 * `OPENAI_API_KEY` — API key for Codex.
 * `GEMINI_API_KEY` — API key for Gemini.
 
@@ -189,8 +199,8 @@ docker compose run --rm poetry lock
 
 > 🔄 Note: If you've changed dependencies (e.g. updated pyproject.toml or
 > poetry.lock), rebuild the image(s) that install Python dependencies:
-> `vim-ide`, `dev`, `codex`, `gemini`, `jupyterlab`, and/or `app` depending on
-> what you run.
+> `vim-ide`, `dev`, `codex`, `gemini`, `code-server`, `jupyterlab`, and/or
+> `app` depending on what you run.
 
 ```bash
 docker compose build vim-ide
@@ -236,7 +246,8 @@ docker compose run --rm dev ruff format --check
 This template includes a minimal GitHub Actions workflow in
 `.github/workflows/ci.yml` that:
 
-* builds `dev` and `app` images
+* builds `dev`, `app`, `vim-ide`, `codex`, `gemini`, `jupyterlab`, and `code-server`
+* checks `vim`, `codex`, `gemini`, `jupyter-lab`, and `code-server` binaries
 * runs `ruff check .`
 * runs `ruff format --check .`
 * runs `pytest -q`
@@ -268,6 +279,25 @@ docker compose run --rm codex
 docker compose build gemini
 docker compose run --rm gemini
 ```
+
+### Optional: Run code-server (VS Code in browser)
+
+Create the editor config files from dist templates (recommended):
+
+```bash
+mkdir -p .vscode
+cp .vscode/settings.json.dist .vscode/settings.json
+cp .vscode/extensions.json.dist .vscode/extensions.json
+```
+
+```bash
+docker compose build code-server
+docker compose run --rm --service-ports code-server
+# Open: http://127.0.0.1:${CODE_SERVER_PORT}
+```
+
+`compose.yaml` controls port/auth via `CODE_SERVER_HOST`, `CODE_SERVER_PORT`,
+`CODE_SERVER_AUTH`, and `CODE_SERVER_PASSWORD`.
 
 ### Optional: Run JupyterLab
 

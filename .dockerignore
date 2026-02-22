@@ -15,4 +15,6 @@ build/
 .env
 .DS_Store
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json.dist
+!.vscode/extensions.json.dist

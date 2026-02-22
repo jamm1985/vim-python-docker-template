@@ -141,3 +141,30 @@ COPY --chown=$DOCKER_USER:$DOCKER_USER .coc-settings.json \
 RUN git config --global --add safe.directory /application
 ENV TERM=xterm-256color
 WORKDIR /application
+
+FROM build-deps-dev AS code-server
+ARG DOCKER_HOST_UID=1000
+ARG DOCKER_HOST_GID=1000
+ARG DOCKER_USER=developer
+ARG DOCKER_USER_HOME=/home/developer
+ARG CODE_SERVER_EXTENSIONS="ms-python.python ms-pyright.pyright charliermarsh.ruff ms-toolsai.jupyter"
+RUN set -eux; \
+  for attempt in 1 2 3; do \
+    curl -fsSL https://code-server.dev/install.sh \
+      | sh -s -- --method standalone --prefix /usr/local \
+      && break; \
+    [ "$attempt" -eq 3 ] && exit 1; \
+    sleep 5; \
+  done
+RUN /usr/local/bin/code-server --version
+RUN mkdir -p $DOCKER_USER_HOME/.local/share/code-server/User && \
+  chown -R $DOCKER_USER:$DOCKER_USER $DOCKER_USER_HOME/.local/share/code-server
+COPY --chown=$DOCKER_USER:$DOCKER_USER .vscode/settings.json.dist \
+  $DOCKER_USER_HOME/.local/share/code-server/User/settings.json
+USER ${DOCKER_HOST_UID}:${DOCKER_HOST_GID}
+RUN set -eux; \
+  for ext in $CODE_SERVER_EXTENSIONS; do \
+    /usr/local/bin/code-server --install-extension "$ext" --force; \
+  done
+RUN git config --global --add safe.directory /application
+WORKDIR /application
