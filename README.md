@@ -9,6 +9,7 @@
 
 * [About the Template](#about-the-template)
 * [Features](#features)
+* [Project Structure](#project-structure)
 * [Tested with](#tested-with)
 * [Prerequisites](#prerequisites)
 * [Quickstart](#quickstart)
@@ -20,6 +21,7 @@
   * [5. Update dependencies when needed](#5-update-dependencies-when-needed)
   * [Build and run your application](#build-and-run-your-application)
   * [Optional: Use `dev` for checks and experiments](#optional-use-dev-for-checks-and-experiments)
+  * [GitHub CI checks](#github-ci-checks)
   * [Optional: Run Codex or Gemini (see more examples below)](#optional-run-codex-or-gemini-see-more-examples-below)
   * [Optional: Run JupyterLab](#optional-run-jupyterlab)
 * [💻 AI-Powered CLI Workflow (Gemini & Codex)](#-ai-powered-cli-workflow-gemini--codex)
@@ -68,6 +70,22 @@ Use it as-is or tailor it to match your team's development workflow.
 * Supports custom **Python and Poetry** versions
 * Simple to extend with Jupyter, SQL drivers, and more
 * Works identically on any machine with Docker
+
+## Project Structure
+
+```text
+.
+├── .github/workflows/ci.yml      # GitHub CI: build dev/app, run Ruff + pytest
+├── src/sample/main.py            # Example application module
+├── tests/sample/test_main.py     # Example pytest tests to extend in your project
+├── Dockerfile                    # Multi-stage images (base, dev, vim-ide, app)
+├── compose.yaml                  # Local service orchestration for template workflows
+├── pyproject.toml                # Poetry dependencies and tool configuration
+├── poetry.lock                   # Locked dependency graph
+└── README.md                     # Setup and usage documentation
+```
+
+This layout is intentionally minimal so it can be extended for any project.
 
 ## Tested with
 
@@ -212,6 +230,18 @@ docker compose run --rm dev pytest -q
 docker compose run --rm dev ruff check
 docker compose run --rm dev ruff format --check
 ```
+
+### GitHub CI checks
+
+This template includes a minimal GitHub Actions workflow in
+`.github/workflows/ci.yml` that:
+
+* builds `dev` and `app` images
+* runs `ruff check .`
+* runs `ruff format --check .`
+* runs `pytest -q`
+
+The same pattern can be easily extended for any other CI system.
 
 If you’re running as the non-root user and want to try extra system packages
 before baking them into the image, use `sudo`:
