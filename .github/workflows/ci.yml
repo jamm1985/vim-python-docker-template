@@ -30,8 +30,20 @@ jobs:
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build dev and app images
-        run: docker compose build dev app
+      - name: Build images
+        run: docker compose build dev app vim-ide codex gemini jupyterlab
+
+      - name: Check Vim
+        run: docker compose run --rm -T vim-ide --version
+
+      - name: Check Codex
+        run: docker compose run --rm -T codex --help
+
+      - name: Check Gemini
+        run: docker compose run --rm -T gemini --help
+
+      - name: Check JupyterLab
+        run: docker compose run --rm -T jupyterlab --version
 
       - name: Ruff lint
         run: docker compose run --rm -e RUFF_CACHE_DIR=/tmp/ruff-cache dev ruff check .
