@@ -1,5 +1,7 @@
 """Main template."""
 
+import sys
+
 import numpy as np
 
 
@@ -27,3 +29,10 @@ def run(k: int = 10) -> list[float]:
         list samples of size k
     """
     return get_sample(k)
+
+
+def main() -> int:
+    """Run default sample generation for CLI usage."""
+    sample = run()
+    sys.stdout.write(f"{sample}\n")
+    return 0

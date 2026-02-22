@@ -2,7 +2,7 @@
 
 import pytest
 
-from sample.main import get_sample, run
+from sample.main import get_sample, main, run
 
 
 def test_get_sample_returns_requested_number_of_values() -> None:
@@ -29,3 +29,17 @@ def test_run_uses_get_sample(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr("sample.main.get_sample", fake_get_sample)
     assert run(2) == expected
+
+
+def test_main_writes_sample_and_returns_zero(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Main writes the sample to stdout and exits with status code 0."""
+    expected = [0.1, 0.2]
+
+    monkeypatch.setattr("sample.main.run", lambda: expected)
+
+    assert main() == 0
+    captured = capsys.readouterr()
+    assert captured.out.strip() == str(expected)
