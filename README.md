@@ -9,10 +9,14 @@
 
 * [About the Template](#about-the-template)
 * [Features](#features)
+* [Who Is This For?](#who-is-this-for)
 * [Project Structure](#project-structure)
 * [Tested with](#tested-with)
 * [Prerequisites](#prerequisites)
 * [Quickstart](#quickstart)
+* [Example Project Templates](#example-project-templates)
+  * [1. Data Science / ML Project](#1-data-science--ml-project)
+  * [2. Backend API / Service Project](#2-backend-api--service-project)
 * [🚀 Getting Started](#-getting-started)
   * [1. Configure environment and Python settings and API tokens](#1-configure-environment-and-python-settings-and-api-tokens)
   * [2. Set up Python project dependencies](#2-set-up-python-project-dependencies)
@@ -40,17 +44,19 @@
 ## About the Template
 
 **vim-python-docker-template** is a lightweight, flexible starting point for
-containerized Python development. It’s especially well-suited for data science
-and machine learning workflows that require OS-level packages,
-hardware-specific dependencies, or reproducible environments.
+containerized Python development where the only required host dependency is
+Docker.
 
 This template allows you to write and run code inside the same containerized
-environment using **Vim configured as a full-featured IDE** — making it ideal
-for both local and remote development.
+environment using either:
+
+* **Vim configured as a full-featured IDE** (`vim-ide`)
+* **VS Code in browser via code-server** (`code-server`)
 
 Whether you're scripting pipelines, prototyping machine learning models, or
-building production tools, this setup provides a consistent, customizable
-workflow with Vim at the center.
+building production tools, this setup provides a consistent and reproducible
+workflow for build, lint, test, and run operations through `docker compose`
+commands.
 
 > ✨ Designed to work with *any* Python project — just plug in your code and
 > dependencies.
@@ -66,11 +72,25 @@ Use it as-is or tailor it to match your team's development workflow.
 
 ## Features
 
-* **Reproducible environments** for Python development
-* **IDE-like Vim setup**, ready to go out of the box
-* Supports custom **Python and Poetry** versions
-* Simple to extend with Jupyter, SQL drivers, and more
-* Works identically on any machine with Docker
+* **Docker-first workflow**: build, run, lint, and test inside containers
+* **Single host dependency**: Docker Engine + Compose
+* **Two editor paths**: `vim-ide` and `code-server` (VS Code in browser)
+* **Built-in quality checks** with `ruff` and `pytest`
+* **Reproducible Python environment** with customizable Python and Poetry
+  versions
+* **Optional tooling**: JupyterLab, Codex CLI, Gemini CLI
+* **CI-ready template** with a simple GitHub Actions workflow
+
+## Who Is This For?
+
+* Teams that want Docker as the only required local dependency.
+* Data science / ML projects that need notebooks, reproducible dependencies,
+  and optional GPU/OS packages.
+* Backend/API projects that need consistent lint/test/build behavior across
+  machines.
+* Developers who prefer either terminal-first editing (`vim-ide`) or
+  browser-based VS Code (`code-server`).
+* Repositories that need a simple CI baseline to extend over time.
 
 ## Project Structure
 
@@ -98,6 +118,7 @@ This layout is intentionally minimal so it can be extended for any project.
 
 ## Prerequisites
 
+* Docker is the only required local runtime dependency.
 * Docker Engine with `docker compose` v2.0+ (minimum). Tested versions are
   listed above.
 * `docker buildx` is required only for cross-platform builds (when
@@ -116,9 +137,12 @@ cp .env.dist .env
 cp .vimrc.dist .vimrc
 cp .coc-settings.json.dist .coc-settings.json
 docker compose build vim-ide
+docker compose run --rm vim-ide
+
 # Optional alternative editor:
 # docker compose build code-server
-docker compose run --rm vim-ide
+# docker compose run --rm --service-ports code-server
+# Open: http://127.0.0.1:${CODE_SERVER_PORT:-8443}
 ```
 
 To exit Vim: `:q` (or `:qa` to quit all).
@@ -129,6 +153,53 @@ If you just want a shell in the dev environment:
 docker compose build dev
 docker compose run --rm dev
 ```
+
+## Example Project Templates
+
+### 1. Data Science / ML Project
+
+Use this template when your project mixes notebooks, experiments, and Python
+modules.
+
+```text
+.
+├── src/<project_name>/...
+├── notebooks/
+├── data/
+│   ├── raw/
+│   └── processed/
+├── tests/
+├── pyproject.toml
+└── README.md
+```
+
+Typical workflow:
+
+```bash
+docker compose build dev jupyterlab
+docker compose run --rm --service-ports jupyterlab
+docker compose run --rm dev ruff check .
+docker compose run --rm dev pytest -q
+```
+
+### 2. Backend API / Service Project
+
+Use this template when your project is mostly application code, tests, and CI
+checks.
+
+```text
+.
+├── src/<service_name>/
+│   ├── api.py
+│   ├── main.py
+│   └── settings.py
+├── tests/
+├── pyproject.toml
+└── README.md
+```
+
+Typical workflow: keep app code in `src/`, run `ruff` + `pytest` in `dev`, and
+package runtime execution through the `app` service.
 
 ## 🚀 Getting Started
 
@@ -423,6 +494,7 @@ docker compose run --rm codex suggest tests --file src/sample/main.py
 ## 🔒 Security notes
 
 Never commit `.env` (it contains secrets like `OPENAI_API_KEY`,
+`CODE_SERVER_PASSWORD`,
 `GEMINI_API_KEY`, and `JUPYTER_TOKEN`).
 
 If you need to share the resolved Compose config, use
