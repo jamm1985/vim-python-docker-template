@@ -209,7 +209,8 @@ Set the `.env` values used by `compose.yaml` and the Docker build. Common ones:
 
 * `TZ` — Container timezone (e.g. `Europe/Berlin`, `Asia/Vladivostok`).
 * `DOCKER_PLATFORM` — Target architecture (e.g. `linux/amd64`, `linux/arm64`).
-* `DOCKER_HOST_UID` / `DOCKER_HOST_GID` — Host user/group IDs for file ownership.
+* `DOCKER_HOST_UID` / `DOCKER_HOST_GID` — Host user/group IDs for file
+  ownership.
 * `DOCKER_USER` / `DOCKER_USER_HOME` — Container user + home directory.
 * `MIRROR_LIST_COUNTRY` — Arch mirror country code for pacman.
 * `BUILD_PACKAGES` — System packages needed to build Python and runtime deps.
@@ -220,11 +221,13 @@ Set the `.env` values used by `compose.yaml` and the Docker build. Common ones:
 * `POETRY_OPTIONS_DEV` — Poetry install flags for the dev image.
 * `PIP_DEFAULT_TIMEOUT` — Pip network timeout (seconds).
 * `JUPYTER_TOKEN` — Token for JupyterLab login.
-* `CODE_SERVER_EXTENSIONS` — Space-separated extension IDs preinstalled in code-server.
+* `CODE_SERVER_EXTENSIONS` — Space-separated extension IDs preinstalled in
+  code-server.
 * `CODE_SERVER_HOST` — Bind address for code-server (usually `0.0.0.0`).
 * `CODE_SERVER_PORT` — Port for code-server.
 * `CODE_SERVER_AUTH` — code-server auth mode (`password` or `none`).
-* `CODE_SERVER_PASSWORD` — Password used by code-server when auth is `password`.
+* `CODE_SERVER_PASSWORD` — Password used by code-server when auth is
+  `password`.
 * `OPENAI_API_KEY` — API key for Codex.
 * `GEMINI_API_KEY` — API key for Gemini.
 
@@ -317,7 +320,8 @@ docker compose run --rm dev ruff format --check
 This template includes a minimal GitHub Actions workflow in
 `.github/workflows/ci.yml` that:
 
-* builds `dev`, `app`, `vim-ide`, `codex`, `gemini`, `jupyterlab`, and `code-server`
+* builds `dev`, `app`, `vim-ide`, `codex`, `gemini`, `jupyterlab`, and
+  `code-server`
 * checks `vim`, `codex`, `gemini`, `jupyter-lab`, and `code-server` binaries
 * runs `ruff check .`
 * runs `ruff format --check .`
@@ -345,6 +349,16 @@ docker compose run --rm dev sudo pacman -S --noconfirm <package>
 docker compose build codex
 docker compose run --rm codex
 ```
+
+If Codex asks for a less restricted sandbox while already running inside this
+container, rerun it with:
+
+```bash
+docker compose run --rm codex -s danger-full-access
+```
+
+Use this only when you want Codex to execute commands directly inside the
+container instead of using its own internal sandbox.
 
 ```bash
 docker compose build gemini
@@ -503,6 +517,12 @@ If you need to share the resolved Compose config, use
 Browser-based auth persists under `${DOCKER_USER_HOME}/.codex` and
 `${DOCKER_USER_HOME}/.gemini` via the `codex-auth` and `gemini-auth` Docker
 volumes.
+
+`codex -s danger-full-access` disables Codex's internal command sandbox. It
+does not change Docker's seccomp profile and does not add Linux capabilities to
+the container. In this mode, Codex gets the same access as the container
+itself, including the bind-mounted `/application` workspace, available network
+access, and the persisted auth volume under `${DOCKER_USER_HOME}/.codex`.
 
 ## 🧠 Vim IDE Features
 

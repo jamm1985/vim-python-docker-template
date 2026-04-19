@@ -8,7 +8,7 @@ ARG MIRROR_LIST_COUNTRY=RU
 ARG BUILD_PACKAGES="pyenv git gnupg sudo postgresql-libs mariadb-libs openmp"
 ARG PYTHON_VERSION=3.14
 ARG PIP_DEFAULT_TIMEOUT=300
-ARG POETRY_VERSION=2.3.2
+ARG POETRY_VERSION=2.3.4
 RUN echo "* soft core 0" >> /etc/security/limits.conf && \
     echo "* hard core 0" >> /etc/security/limits.conf && \
     echo "* soft nofile 10000" >> /etc/security/limits.conf
@@ -53,15 +53,19 @@ RUN pyenv install --skip-existing $PYTHON_VERSION && \
 ENV PYTHONUNBUFFERED=1
 ENV PIP_DEFAULT_TIMEOUT=$PIP_DEFAULT_TIMEOUT
 ENV POETRY_NO_INTERACTION=1
-ENV POETRY_HOME=/opt/poetry
 ENV POETRY_CACHE_DIR=/var/cache/pypoetry
 ENV PIP_CACHE_DIR=/var/cache/pip
 ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv --copies $VIRTUAL_ENV
 ENV PATH=$VIRTUAL_ENV/bin:$PATH
 RUN pip install --upgrade pip
-RUN curl -sSL https://install.python-poetry.org | POETRY_VERSION=$POETRY_VERSION python -
-ENV PATH=$POETRY_HOME/bin:$PATH
+ENV TOOLS_VENV=/opt/tools-venv
+RUN python -m venv --copies $TOOLS_VENV && \
+    $TOOLS_VENV/bin/pip install --no-cache-dir --upgrade pip pipx
+ENV PIPX_HOME=/opt/pipx
+ENV PIPX_BIN_DIR=/usr/local/bin
+RUN $TOOLS_VENV/bin/pipx install --python "$(command -v python)" "poetry==${POETRY_VERSION}" && \
+    poetry --version
 ENV PYTHONPATH=/application/src
 ENV PROJECT_ROOT=/application
 ENV HOME=$DOCKER_USER_HOME

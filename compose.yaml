@@ -17,7 +17,7 @@ x-default-args: &default-args
   CODE_SERVER_EXTENSIONS: ${CODE_SERVER_EXTENSIONS:-ms-python.python ms-pyright.pyright charliermarsh.ruff ms-toolsai.jupyter}
   PYTHON_VERSION: ${PYTHON_VERSION:-3.14}
   PIP_DEFAULT_TIMEOUT: ${PIP_DEFAULT_TIMEOUT:-300}
-  POETRY_VERSION: ${POETRY_VERSION:-2.3.2}
+  POETRY_VERSION: ${POETRY_VERSION:-2.3.4}
   POETRY_OPTIONS_APP: ${POETRY_OPTIONS_APP:---only main --compile}
   POETRY_OPTIONS_DEV: ${POETRY_OPTIONS_DEV:---no-root --with dev --compile}
 
